@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VasquezGaraje - Mantenimiento a Domicilio</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Styles/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">VasquezGaraje</div>
+        <div class="nav-links">
+            <a href="#quienes-somos">Quiénes Somos</a>
+            <a href="#servicios">Servicios</a>
+            <a href="#galeria">Galería</a>
+            <a href="#reserva">Reserva</a>
+            <a href="login.html" class="btn btn-primario">Usuario 1</a>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <h1>Mantenimiento Profesional de Vehículos a domicilio</h1>
+    </header>
+
+    <main>
+        <section id="quienes-somos" class="page-section">
+            <h2>Quiénes Somos</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 20px;">
+                Bienvenido a Vásquez Garage Spa, su destino de confianza en la Región Metropolitana, Chile, con 20 años de experiencia en la venta de repuestos y servicios de mantenimiento y reparación de vehículos. Ofrecemos un servicio completely a domicilio, garantizado y con facturación, asegurando la mejor calidad y prestigio en cada trabajo que realizamos.
+            </p>
+        </section>
+
+        <section id="servicios" class="page-section" style="background-color: var(--color-superficie);">
+            <h2>Servicios</h2>
+            <p style="text-align: center;">Venta de repuestos, mantenimiento general, reparación de motor, etc.</p>
+        </section>
+
+        <section id="galeria" class="page-section">
+            <h2>Galería</h2>
+            <div class="gallery-grid">
+                <img src="https://source.unsplash.com/random/400x300/?car,repair,1" alt="Trabajo de mecánica 1">
+                <img src="https://source.unsplash.com/random/400x300/?car,repair,2" alt="Trabajo de mecánica 2">
+                <img src="https://source.unsplash.com/random/400x300/?car,repair,3" alt="Trabajo de mecánica 3">
+                <img src="https://source.unsplash.com/random/400x300/?car,repair,4" alt="Trabajo de mecánica 4">
+                <img src="https://source.unsplash.com/random/400x300/?car,repair,5" alt="Trabajo de mecánica 5">
+                <img src="https://source.unsplash.com/random/400x300/?car,repair,6" alt="Trabajo de mecánica 6">
+            </div>
+        </section>
+
+        <section id="reserva" class="page-section cta-section">
+            <h2>Reserva tu Hora</h2>
+            <p>Reserva tu hora para tu consulta y realizar una atención personalizada.
+               <br> <strong>Valor de la visita: $35.000</strong>
+            </p>
+            <a href="#" class="btn btn-secundario">Reservar Ahora</a>
+        </section>
+    </main>
+
+</body>
+</html>

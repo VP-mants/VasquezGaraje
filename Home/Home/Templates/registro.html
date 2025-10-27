@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - VasquezGaraje</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            
+            <div class="auth-image-panel">
+                <h2>Tu taller de confianza, ahora a un clic de distancia.</h2>
+            </div>
+    
+            <div class="auth-form-panel">
+                <h1>Crear Cuenta</h1>
+                <p class="subtitulo">Completa tus datos para registrarte.</p>
+
+                <form>
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apellido">Apellido</label>
+                        <input type="text" id="apellido" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Número de Teléfono</label>
+                        <input type="tel" id="telefono" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirm">Confirmar Contraseña</label>
+                        <input type="password" id="password_confirm" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primario" style="width: 100%;">Registrarse</button>
+                    
+                    <div class="auth-form-links">
+                        <a href="login.html">¿Ya tienes una cuenta? Inicia Sesión</a>
+                    </div>
+                </form>
+            </div>
+    
+        </div>
+    </div>
+
+</body>
+</html>
