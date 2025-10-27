@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Contraseña - VasquezGaraje</title>
-    <link rel="stylesheet" href="styles.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Styles/styles.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -29,7 +30,7 @@
                     <button type="submit" class="btn btn-primario" style="width: 100%;">Enviar Código</button>
                     
                     <div class="auth-form-links">
-                        <a href="login.html">Volver a Iniciar Sesión</a>
+                        <a href="{% url 'login' %}">Volver a Iniciar Sesión</a>
                     </div>
                 </form>
             </div>

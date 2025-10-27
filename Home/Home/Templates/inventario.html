@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin: Inventario - VasquezGaraje</title>
-    <link rel="stylesheet" href="styles.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Styles/styles.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -13,10 +14,10 @@
         <aside class="admin-sidebar">
             <div class="logo">Admin Panel</div>
             <nav class="admin-nav">
-                <a href="admin_inventario.html" class="active">Inventario</a>
+                <a href="{% url 'inventario' %}" class="active">Inventario</a>
                 <a href="#">Órdenes</a>
                 <a href="#">Clientes</a>
-                <a href="home.html">Volver al Sitio</a>
+                <a href="{% url 'home' %}">Volver al Sitio</a>
             </nav>
         </aside>
 

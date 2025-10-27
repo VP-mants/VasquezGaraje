@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Inventario</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Styles/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="dashboard-layout">
+        <div class="sidebar">
+            <h2>⚙️ Control Admin</h2>
+            <nav>
+                <a href="#">Órdenes</a>
+                <a href="{% url 'inventario' %}" class="active">Inventario</a>
+                <a href="{% url 'home' %}">Salir Admin</a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>📦 Control de Inventario (Tabla INSUMO)</h1>
+                <p>Gestión de stock, precios y unidades de los materiales utilizados en los servicios.</p>
+                <button onclick="mostrarFormularioNuevoInsumo()" class="btn-primario" style="width: auto; padding: 10px 20px; margin-top: 15px;">+ Agregar Nuevo Insumo</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Stock Actual</th>
+                        <th>Unidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inventarioTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td>Aceite Sintético 5W-30</td>
+                        <td>45.5</td>
+                        <td>Litro</td>
+                        <td><button style="background: var(--color-alerta); border: none; padding: 5px 10px; border-radius: 4px; color: white;">Editar</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Filtro de Aire K&N</td>
+                        <td>12</td>
+                        <td>Unidad</td>
+                        <td><button style="background: var(--color-alerta); border: none; padding: 5px 10px; border-radius: 4px; color: white;">Editar</button></td>
+                    </tr>
+                    </tbody>
+            </table>
+            
+        </div>
+    </div>
+
+    <script>
+        // Lógica clave de viabilidad (Requiere backend para interactuar con SQLite):
+        
+        function cargarInventario() {
+            // Aquí se haría una llamada al backend (ej: GET /api/insumos)
+            // para obtener todas las filas de la tabla INSUMO.
+            console.log("Cargando datos de la tabla INSUMO...");
+            // Luego, la respuesta JSON se usaría para construir las filas de la tabla.
+        }
+
+        function mostrarFormularioNuevoInsumo() {
+            // Función para mostrar un modal o formulario para ingresar un nuevo insumo
+            // y enviarlo al backend (POST /api/insumos) para insertar en SQLite.
+            alert("Simulación: Mostrar formulario para agregar un nuevo Insumo.");
+        }
+
+        cargarInventario(); 
+    </script>
+</body>
+</html>
