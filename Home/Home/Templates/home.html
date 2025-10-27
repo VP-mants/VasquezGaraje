@@ -17,7 +17,12 @@
             <a href="#servicios">Servicios</a>
             <a href="#galeria">Galería</a>
             <a href="#reserva">Reserva</a>
-            <a href="login.html" class="btn btn-primario">Usuario 1</a>
+            {% if request.session.cliente_id %}
+                <span style="margin-right: 15px; font-weight: 700; color: var(--color-primario);">Hola, {{ request.session.nombre_cliente }}</span>
+                <a href="{% url 'logout' %}" class="btn btn-secundario">Cerrar Sesión</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primario">Iniciar Sesión</a>
+            {% endif %}
         </div>
     </nav>
 
