@@ -4,63 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - VasquezGaraje</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="auth-wrapper">
-        <div class="auth-container">
+    <div class="form-container">
+        <h1>Crear Cuenta</h1>
+        <p>Regístrate para comenzar a agendar tus servicios a domicilio.</p>
+        
+        <form id="registroForm">
+            <div class="grid-2col">
+                <div>
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+                <div>
+                    <label for="apellido">Apellido</label>
+                    <input type="text" id="apellido" name="apellido" required>
+                </div>
+            </div>
+
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" name="email" placeholder="tu.correo@ejemplo.cl" required>
+
+            <label for="telefono">Número de Teléfono</label>
+            <input type="tel" id="telefono" name="telefono" placeholder="+56 9 XXXX XXXX" required>
+
+            <label for="contrasena">Contraseña</label>
+            <input type="password" id="contrasena" name="contrasena" required>
+
+            <label for="confirmarContrasena">Confirmar Contraseña</label>
+            <input type="password" id="confirmarContrasena" name="confirmarContrasena" required>
             
-            <div class="auth-image-panel">
-                <h2>Tu taller de confianza, ahora a un clic de distancia.</h2>
-            </div>
-    
-            <div class="auth-form-panel">
-                <h1>Crear Cuenta</h1>
-                <p class="subtitulo">Completa tus datos para registrarte.</p>
-
-                <form>
-                    <div class="form-group">
-                        <label for="nombre">Nombre</label>
-                        <input type="text" id="nombre" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="apellido">Apellido</label>
-                        <input type="text" id="apellido" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Correo electrónico</label>
-                        <input type="email" id="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="telefono">Número de Teléfono</label>
-                        <input type="tel" id="telefono" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Contraseña</label>
-                        <input type="password" id="password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password_confirm">Confirmar Contraseña</label>
-                        <input type="password" id="password_confirm" required>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primario" style="width: 100%;">Registrarse</button>
-                    
-                    <div class="auth-form-links">
-                        <a href="login.html">¿Ya tienes una cuenta? Inicia Sesión</a>
-                    </div>
-                </form>
-            </div>
-    
-        </div>
+            <button type="submit" class="btn-primario">Registrarse</button>
+            
+            <p style="text-align:center; margin-top:20px;">
+                ¿Ya tienes cuenta? <a href="login.html" style="color: var(--color-primario); text-decoration: none;">Inicia Sesión</a>
+            </p>
+        </form>
     </div>
+
+    <script>
+        document.getElementById('registroForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Lógica clave de viabilidad:
+            // 1. Validar que las contraseñas coincidan.
+            // 2. Si es válido, enviar los datos (nombre, apellido, email, telefono, contrasena) 
+            //    a un endpoint del backend (ej: /api/registro).
+            // 3. El backend tomaría estos datos e insertaría una nueva fila en la tabla USUARIO 
+            //    de la base de datos SQLite.
+            
+            console.log('Datos del registro enviados al backend.');
+            alert('Registro exitoso (Simulado). Redirigiendo a Login...'); 
+            // window.location.href = 'login.html'; 
+        });
+    </script>
 
 </body>
 </html>

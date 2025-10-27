@@ -1,19 +1,13 @@
-/* =================================================================
-   STYLES.CSS - Hoja de Estilo Uniforme para VasquezGaraje
-   ================================================================= */
-
-/* --- 1. Variables Globales y Reseteo --- */
+/* ===== 1. RESET BÁSICO Y VARIABLES DE COLOR ===== */
 :root {
-    --color-primario: #005A9C;
-    --color-primario-oscuro: #004578;
-    --color-secundario: #D9A036; /* Un color "oro" o "mecánico" */
-    --color-fondo: #F4F7F6;
-    --color-superficie: #FFFFFF; /* Para tarjetas, formularios, etc. */
+    --color-primario: #c4a000ff; /* Azul Corporativo */
+    --color-fondo: #FFFFFF;
+    --color-fondo-panel: #F4F7F6;
     --color-texto: #333333;
-    --color-texto-secundario: #555555;
+    --color-texto-secundario: #555;
     --color-borde: #DDDDDD;
-    --color-admin-bg: #2C3E50;
-    --color-admin-texto: #ECF0F1;
+    --color-exito: #28a745;
+    --color-alerta: #ffc107;
     --font-principal: 'Inter', sans-serif;
 }
 
@@ -25,72 +19,23 @@
 
 body {
     font-family: var(--font-principal);
-    background-color: var(--color-fondo);
+    background-color: var(--color-fondo-panel);
     color: var(--color-texto);
-    line-height: 1.6;
+    min-height: 100vh;
 }
 
-a {
-    color: var(--color-primario);
-    text-decoration: none;
-    transition: color 0.3s;
+/* Estilo para los formularios (Login, Registro) */
+.form-container {
+    max-width: 450px;
+    margin: 60px auto;
+    padding: 40px;
+    background-color: var(--color-fondo);
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
 }
 
-a:hover {
-    color: var(--color-primario-oscuro);
-    text-decoration: underline;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-}
-
-/* --- 2. Componentes Comunes (Botones y Formularios) --- */
-
-.btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-family: var(--font-principal);
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-align: center;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-.btn-primario {
-    background-color: var(--color-primario);
-    color: white;
-}
-
-.btn-primario:hover {
-    background-color: var(--color-primario-oscuro);
-    transform: translateY(-2px);
-    text-decoration: none;
-    color: white;
-}
-
-.btn-secundario {
-    background-color: var(--color-secundario);
-    color: white;
-}
-
-.btn-secundario:hover {
-    background-color: #b8862c;
-    transform: translateY(-2px);
-    text-decoration: none;
-    color: white;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    width: 100%;
-}
-
-.form-group label {
+/* Estilos de inputs y labels */
+label {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
@@ -98,297 +43,145 @@ img {
     color: var(--color-texto-secundario);
 }
 
-.form-group input {
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+select,
+textarea {
     width: 100%;
     padding: 12px 15px;
+    margin-bottom: 20px;
     border: 1px solid var(--color-borde);
     border-radius: 8px;
     font-family: var(--font-principal);
     font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-.form-group input:focus {
+input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--color-primario);
     box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.2);
 }
 
-/* --- 3. Diseño de Autenticación (Login, Registro, etc.) --- */
-
-.auth-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-.auth-container {
-    display: flex;
-    width: 900px;
-    max-width: 95vw;
-    min-height: 550px;
-    background-color: var(--color-superficie);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.auth-image-panel {
-    flex: 1;
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://source.unsplash.com/random/800x600/?mechanic,car-repair') no-repeat center center/cover;
+/* Estilo del botón primario */
+.btn-primario {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--color-primario);
     color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 40px;
-}
-
-.auth-image-panel h2 {
-    font-size: 2.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
     font-weight: 700;
-    line-height: 1.2;
-}
-
-.auth-form-panel {
-    flex: 1;
-    padding: 40px 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.auth-form-panel h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: var(--color-texto);
-}
-
-.auth-form-panel .subtitulo {
-    font-size: 1rem;
-    color: var(--color-texto-secundario);
-    margin-bottom: 30px;
-}
-
-.auth-form-links {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 25px;
-}
-
-.auth-form-links a {
-    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
     margin-top: 10px;
 }
 
-/* --- 4. Diseño de Página Pública (Home) --- */
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 5%;
-    background-color: var(--color-superficie);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
+.btn-primario:hover {
+    background-color: #004a80;
+    transform: translateY(-2px);
 }
 
-.navbar .logo {
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: var(--color-texto);
-}
-
-.navbar .nav-links a {
-    margin-left: 20px;
-    font-weight: 500;
-    font-size: 1rem;
-}
-
-.navbar .nav-links a:hover {
-    color: var(--color-primario);
-    text-decoration: none;
-}
-
-.hero-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    height: 70vh;
-    min-height: 400px;
-    margin-top: 60px; /* Espacio para el navbar fijo */
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://source.unsplash.com/random/1600x900/?car-maintenance') no-repeat center center/cover;
-    color: white;
-    text-align: center;
-    padding: 20px;
-}
-
-.hero-section h1 {
-    font-size: 3rem;
-    font-weight: 900;
-    margin-bottom: 15px;
-}
-
-.page-section {
-    padding: 60px 5%;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.page-section h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 30px;
-    text-align: center;
-    color: var(--color-texto);
-}
-
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-.gallery-grid img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.cta-section {
-    background-color: var(--color-primario);
-    color: white;
-    text-align: center;
-}
-
-.cta-section h2 {
-    color: white;
-}
-
-.cta-section p {
-    font-size: 1.1rem;
-    margin-bottom: 25px;
-}
-
-/* --- 5. Diseño del Panel de Administración --- */
-
-.admin-wrapper {
+/* Estilos de navegación general para Home y Admin */
+.dashboard-layout {
     display: flex;
     min-height: 100vh;
 }
 
-.admin-sidebar {
+.sidebar {
     width: 250px;
-    background-color: var(--color-admin-bg);
-    color: var(--color-admin-texto);
-    padding: 20px;
-    position: fixed;
-    height: 100%;
-}
-
-.admin-sidebar .logo {
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: white;
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-.admin-sidebar .admin-nav a {
-    display: block;
-    color: var(--color-admin-texto);
-    padding: 12px 15px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-.admin-sidebar .admin-nav a:hover,
-.admin-sidebar .admin-nav a.active {
     background-color: var(--color-primario);
-    text-decoration: none;
     color: white;
-}
-
-.admin-main-content {
-    margin-left: 250px;
-    flex: 1;
-    padding: 30px;
-    background-color: var(--color-fondo);
-}
-
-.admin-header {
+    padding: 20px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+}
+
+.sidebar h2 {
+    font-size: 1.5rem;
     margin-bottom: 30px;
 }
 
-.admin-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
+.sidebar nav a {
+    display: block;
+    padding: 12px 10px;
+    margin-bottom: 10px;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s;
 }
 
-.content-card {
-    background-color: var(--color-superficie);
-    border-radius: 8px;
-    padding: 25px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
-.admin-table {
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
+}
+
+.header {
+    margin-bottom: 30px;
+}
+
+.grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Estilos de tabla para Admin */
+.data-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-}
-
-.admin-table th,
-.admin-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--color-borde);
-    text-align: left;
-}
-
-.admin-table th {
     background-color: var(--color-fondo);
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-transform: uppercase;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* --- 6. Responsividad --- */
-@media (max-width: 900px) {
-    .auth-container {
-        flex-direction: column;
-        max-width: 450px;
-        min-height: 0;
-    }
-    .auth-image-panel {
-        min-height: 250px;
-        justify-content: center;
-        text-align: center;
-    }
-    .auth-image-panel h2 { font-size: 1.8rem; }
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-borde);
 }
 
+.data-table th {
+    background-color: var(--color-fondo-panel);
+    font-weight: 600;
+    color: var(--color-texto);
+}
+
+.data-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Media Query Básico */
 @media (max-width: 768px) {
-    .navbar { flex-direction: column; }
-    .hero-section h1 { font-size: 2.2rem; }
-    
-    .admin-sidebar {
+    .dashboard-layout {
+        flex-direction: column;
+    }
+    .sidebar {
         width: 100%;
         height: auto;
-        position: static;
+        flex-direction: row;
+        justify-content: space-around;
     }
-    .admin-main-content {
-        margin-left: 0;
+    .sidebar nav {
+        display: flex;
+        flex-grow: 1;
+    }
+    .sidebar nav a {
+        flex-grow: 1;
+        text-align: center;
+    }
+    .main-content {
+        padding: 20px;
     }
 }
