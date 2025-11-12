@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
-from Models.models import Cliente
+from Models.models import Cliente, Reserva, Vehiculo, Servicio
 from Controllers.forms import RegistroForm, LoginForm
+from Controllers.reserva_forms import ReservaForm
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth import logout as django_logout
@@ -68,4 +69,40 @@ def admin_control(request):
 	return render(request, 'admin_control.html')
 
 def agendar_servicio(request):
-	return render(request, 'agendar_servicio.html')
+	if not request.session.get('cliente_id'):
+		return redirect('login')
+	cliente_id = request.session['cliente_id']
+	vehiculos = Vehiculo.objects.filter(usuario_id=cliente_id)
+	servicios = Servicio.objects.all()
+	reservas_existentes = Reserva.objects.all()
+	if request.method == 'POST':
+		form = ReservaForm(request.POST)
+		form.fields['vehiculo'].queryset = vehiculos
+		form.fields['servicio'].queryset = servicios
+		if form.is_valid():
+			form.save()
+			messages.success(request, 'Reserva realizada exitosamente.')
+			return redirect('perfil_usuario')
+	else:
+		form = ReservaForm()
+		form.fields['vehiculo'].queryset = vehiculos
+		form.fields['servicio'].queryset = servicios
+	# Horarios ocupados para mostrar en el calendario
+	horarios_ocupados = [r.fecha_hora_inicio for r in reservas_existentes]
+	return render(request, 'agendar_servicio.html', {
+		'form': form,
+		'horarios_ocupados': horarios_ocupados,
+		'vehiculos': vehiculos,
+		'servicios': servicios
+	})
+
+def perfil_usuario(request):
+	if not request.session.get('cliente_id'):
+		return redirect('login')
+	cliente_id = request.session['cliente_id']
+	vehiculos = Vehiculo.objects.filter(usuario_id=cliente_id)
+	reservas = Reserva.objects.filter(vehiculo__in=vehiculos).select_related('servicio', 'vehiculo')
+	return render(request, 'perfil_usuario.html', {
+		'reservas': reservas,
+		'vehiculos': vehiculos
+	})

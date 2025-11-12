@@ -1,0 +1,37 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/perfil.css' %}">
+{% extends 'home.html' %}
+{% block content %}
+<div class="dashboard-layout">
+    <div class="main-content">
+        <h1>Mis Reservas</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Vehículo</th>
+                    <th>Servicio</th>
+                    <th>Dirección</th>
+                    <th>Comuna</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas %}
+                <tr>
+                    <td>{{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</td>
+                    <td>{{ reserva.vehiculo.patente }} ({{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }})</td>
+                    <td>{{ reserva.servicio.nombre_servicio }}</td>
+                    <td>{{ reserva.direccion_reserva }}</td>
+                    <td>{{ reserva.comuna_reserva }}</td>
+                    <td>{{ reserva.estado_reserva }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6">No tienes reservas registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

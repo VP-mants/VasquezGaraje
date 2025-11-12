@@ -43,12 +43,11 @@
         <section id="galeria" class="page-section">
             <h2>Galería</h2>
             <div class="gallery-grid">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,1" alt="Trabajo de mecánica 1">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,2" alt="Trabajo de mecánica 2">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,3" alt="Trabajo de mecánica 3">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,4" alt="Trabajo de mecánica 4">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,5" alt="Trabajo de mecánica 5">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,6" alt="Trabajo de mecánica 6">
+                <img src="{% static 'images/imagen 1.jpg' %}" alt="Trabajo de mecánica 1">
+                <img src="{% static 'images/imagen 2.jpg' %}" alt="Trabajo de mecánica 2">
+                <img src="{% static 'images/Imagen 3.jpg' %}" alt="Trabajo de mecánica 3">
+                <img src="{% static 'images/Imagen 4.jpg' %}" alt="Trabajo de mecánica 4">
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo VasquezGaraje">
             </div>
         </section>
         <section id="reserva" class="page-section cta-section">
@@ -56,7 +55,7 @@
             <p>Reserva tu hora para tu consulta y realizar una atención personalizada.
                <br> <strong>Valor de la visita: $35.000</strong>
             </p>
-            <a href="#" class="btn btn-secundario">Reservar Ahora</a>
+            <a href="{% url 'agendar_servicio' %}" class="btn btn-secundario">Reservar Ahora</a>
         </section>
     </main>
 </body>
