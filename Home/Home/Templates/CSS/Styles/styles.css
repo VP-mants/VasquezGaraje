@@ -62,8 +62,9 @@ a:hover {
 }
 
 .btn-primario {
-    background-color: var(--color-primario);
-    color: var(--color-fondo-blanco);
+    background-color: #005A9C;
+    color: #fff;
+    border: 2px solid #004a80;
 }
 
 .btn-primario:hover {
@@ -209,7 +210,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .navbar .nav-links a {
-    margin-left: 25px;
+    margin-left: 0;
+    margin-right: 18px;
     font-weight: 500;
     color: var(--color-texto-gris);
 }
@@ -408,9 +410,10 @@ input:focus, select:focus, textarea:focus {
         align-items: flex-start;
     }
     .navbar .nav-links {
-        margin-top: 10px;
-        display: flex;
-        flex-wrap: wrap;
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
     }
     .navbar .nav-links a {
         margin-left: 0;
