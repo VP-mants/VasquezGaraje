@@ -1,69 +1,155 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendar Servicio - VasquezGaraje</title>
-    {% load static %}
+    <title>Agendar Servicio - Vasquez Garaje</title>
+    
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/reserva_styles.css' %}">
 </head>
 <body>
-    <div class="dashboard-layout">
-        <div class="sidebar">
-            <h2>VasquezGaraje</h2>
+
+    <header class="navbar">
+        <div class="container">
+            <h1><a href="{% url 'home' %}">Vasquez Garaje</a></h1>
             <nav>
-                <a href="{% url 'home' %}">Mi Dashboard</a>
-                <a href="#" class="active">Agendar Servicio</a>
-                <a href="#">Cerrar Sesión</a>
+                <ul>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'mis_servicios' %}">Mis Servicios</a></li>
+                        <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
+                    {% endif %}
+                </ul>
             </nav>
         </div>
-        <div class="main-content">
-            <div class="header">
-                <h1>📅 Agendar Nueva Reserva</h1>
-                <p>Selecciona tu vehículo, el servicio requerido y el lugar de atención.</p>
-            </div>
-            <form id="reservaForm" class="form-container" style="max-width: 800px; margin: 0 auto;">
-                <h2>Paso 1: ¿Qué Vehículo Atenderemos?</h2>
-                <label for="vehiculo">Seleccionar Vehículo (Tabla VEHICULO)</label>
-                <select id="vehiculo" name="vehiculo_id" required>
-                    <option value="" disabled selected>Cargando vehículos...</option>
-                    <option value="1">Patente JK-LM-01 (Marca: Toyota, Modelo: Yaris)</option>
-                    <option value="2">Patente AB-CD-EF (Marca: Nissan, Modelo: Qashqai)</option>
-                </select>
-                <p style="margin-top: -10px; margin-bottom: 20px;"><a href="#" style="color: var(--color-primario);">+ Agregar un nuevo vehículo</a></p>
-                <h2>Paso 2: Selecciona el Servicio</h2>
-                <label for="servicio">Servicio Requerido (Tabla SERVICIO)</label>
-                <select id="servicio" name="servicio_id" required>
-                    <option value="" disabled selected>Cargando catálogo de servicios...</option>
-                    <option value="1">Diagnóstico General (Duración: 60 min, Costo: $25.000)</option>
-                    <option value="2">Cambio de Aceite Básico (Duración: 90 min, Costo: $40.000)</option>
-                </select>
-                <h2>Paso 3: Fecha y Ubicación</h2>
-                <div class="grid-2col">
-                    <div>
-                        <label for="fecha">Fecha</label>
-                        <input type="date" id="fecha" name="fecha_reserva" required>
-                    </div>
-                    <div>
-                        <label for="hora">Hora</label>
-                        <input type="time" id="hora" name="hora_reserva" required>
-                    </div>
+    </header>
+
+    <main class="container">
+        <div class="page-content form-container">
+            <h2>Agendar un Nuevo Servicio</h2>
+            <p>Completa los siguientes datos para reservar tu cita. Nos pondremos en contacto para confirmar.</p>
+
+            <form method="POST" class="reservation-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_vehiculo">Vehículo</label>
+                    {{ form.vehiculo }}
+                    {% if form.vehiculo.errors %}
+                        <div class="field-errors">{{ form.vehiculo.errors }}</div>
+                    {% endif %}
                 </div>
-                <label for="direccion">Dirección de Atención (Columna direccion_atencion en RESERVA)</label>
-                <input type="text" id="direccion" name="direccion_atencion" placeholder="Ej: Av. Principal 123" required>
-                <label for="comuna">Comuna (Columna comuna en RESERVA)</label>
-                <input type="text" id="comuna" name="comuna" placeholder="Ej: Providencia, Las Condes" required>
-                <button type="submit" class="btn-primario">Confirmar Reserva</button>
+
+                <div class="form-group">
+                    <label for="id_servicio">Tipo de Servicio</label>
+                    {{ form.servicio }}
+                    {% if form.servicio.errors %}
+                        <div class="field-errors">{{ form.servicio.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_fecha_hora_inicio">Fecha y Hora</label>
+                    {{ form.fecha_hora_inicio }}
+                    {% if form.fecha_hora_inicio.errors %}
+                        <div class="field-errors">{{ form.fecha_hora_inicio.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_direccion_reserva">Dirección</label>
+                    {{ form.direccion_reserva }}
+                    {% if form.direccion_reserva.errors %}
+                        <div class="field-errors">{{ form.direccion_reserva.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_comuna_reserva">Comuna</label>
+                    {{ form.comuna_reserva }}
+                    {% if form.comuna_reserva.errors %}
+                        <div class="field-errors">{{ form.comuna_reserva.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_notas_cliente">Notas adicionales (opcional)</label>
+                    {{ form.notas_cliente }}
+                    {% if form.notas_cliente.errors %}
+                        <div class="field-errors">{{ form.notas_cliente.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-submit">
+                    <button type="submit" class="btn-primary">Confirmar Reserva</button>
+                </div>
             </form>
         </div>
-    </div>
-    <script>
-        document.getElementById('reservaForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            console.log('Datos de la reserva enviados al backend.');
-            alert('Reserva agendada exitosamente (Simulado).');
-        });
-    </script>
+
+        <div class="calendar-section">
+            <h3>Disponibilidad semanal</h3>
+            <div id="calendar" class="calendar-week"></div>
+            <script>
+                // Horarios ocupados desde Django (rango inicio y fin)
+                const horariosOcupados = {{ horarios_ocupados|safe }};
+                // Configuración de la semana actual
+                const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+                const horas = Array.from({length: 12}, (_, i) => i + 8); // 8:00 a 19:00
+                // Obtener el lunes de la semana actual
+                const hoy = new Date();
+                const lunes = new Date(hoy);
+                lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
+                // Generar matriz de celdas con estado ocupado
+                let ocupadas = Array(7).fill(0).map(() => Array(12).fill(false));
+                horariosOcupados.forEach(rango => {
+                    const inicio = new Date(rango.inicio);
+                    const fin = new Date(rango.fin);
+                    for(let d=0; d<7; d++) {
+                        for(let h=0; h<12; h++) {
+                            let celda = new Date(lunes);
+                            celda.setDate(lunes.getDate() + d);
+                            celda.setHours(8 + h, 0, 0, 0);
+                            let celdaFin = new Date(celda);
+                            celdaFin.setMinutes(celda.getMinutes() + 60);
+                            // Si la celda se solapa con el rango ocupado
+                            if (celda < fin && celdaFin > inicio) {
+                                ocupadas[d][h] = true;
+                            }
+                        }
+                    }
+                });
+                let html = '<table class="calendar-table"><thead><tr><th></th>';
+                dias.forEach(d => html += `<th>${d}</th>`);
+                html += '</tr></thead><tbody>';
+                horas.forEach((h, hi) => {
+                    html += `<tr><td>${h}:00</td>`;
+                    for(let d=0; d<7; d++) {
+                        let cellClass = 'calendar-cell';
+                        if (ocupadas[d][hi]) cellClass += ' occupied';
+                        html += `<td class="${cellClass}"></td>`;
+                    }
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                document.getElementById('calendar').innerHTML = html;
+            </script>
+        </div>
+        <style>
+            .calendar-section { margin: 2.5rem 0; }
+            .calendar-table { width: 100%; border-collapse: collapse; }
+            .calendar-table th, .calendar-table td { border: 1px solid #e0e0e0; padding: 6px 8px; text-align: center; }
+            .calendar-table th { background: #005A9C; color: #fff; }
+            .calendar-cell { background: #f7fafd; min-width: 40px; height: 32px; }
+            .calendar-cell.occupied { background: #ffcdd2; color: #b71c1c; font-weight: bold; }
+        </style>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; {% now "Y" %} Vasquez Garaje. Todos los derechos reservados.</p>
+    </footer>
+
 </body>
 </html>

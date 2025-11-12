@@ -1,0 +1,58 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+{% extends 'home.html' %}
+{% block content %}
+<div class="dashboard-layout">
+    <div class="main-content">
+        <h1>Panel de Reservas (Admin)</h1>
+        <form method="get" class="filter-form">
+            <label for="estado">Filtrar por estado:</label>
+            <select name="estado" id="estado" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                <option value="Pendiente" {% if filtro_estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="Confirmado" {% if filtro_estado == 'Confirmado' %}selected{% endif %}>Confirmado</option>
+                <option value="En Proceso" {% if filtro_estado == 'En Proceso' %}selected{% endif %}>En Proceso</option>
+                <option value="Completado" {% if filtro_estado == 'Completado' %}selected{% endif %}>Completado</option>
+                <option value="Cancelado" {% if filtro_estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+            </select>
+        </form>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Vehículo</th>
+                    <th>Servicio</th>
+                    <th>Fecha y Hora</th>
+                    <th>Dirección</th>
+                    <th>Comuna</th>
+                    <th>Notas</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas %}
+                <tr>
+                    <td>{{ reserva.reserva_id }}</td>
+                    <td>{{ reserva.usuario.nombre_cliente }} {{ reserva.usuario.apellido_cliente }}</td>
+                    <td>{{ reserva.vehiculo.patente }} ({{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }})</td>
+                    <td>{{ reserva.servicio.nombre_servicio }}</td>
+                    <td>{{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</td>
+                    <td>{{ reserva.direccion_reserva }}</td>
+                    <td>{{ reserva.comuna_reserva }}</td>
+                    <td>{{ reserva.notas_cliente|default:'-' }}</td>
+                    <td>{{ reserva.estado_reserva }}</td>
+                    <td>
+                        <a href="{% url 'admin_editar_reserva' reserva.reserva_id %}" class="btn btn-small">Editar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="10">No hay reservas registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

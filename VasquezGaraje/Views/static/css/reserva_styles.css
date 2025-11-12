@@ -1,0 +1,131 @@
+.form-container {
+    max-width: 700px; /* Limita el ancho para mejor legibilidad */
+    margin: 2rem auto; /* Centra el formulario en la página */
+}
+
+.form-container h2 {
+    text-align: center;
+    color: #0056b3; /* Coherente con otros títulos */
+}
+
+.form-container p {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2.5rem;
+}
+
+/* --- Grupos de Campos --- */
+.form-group {
+    margin-bottom: 1.75rem;
+}
+
+/* --- Etiquetas (Labels) --- */
+.form-group label {
+    display: block;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+/* --- Estilo de Inputs, Selects y Textareas --- */
+/* Esto estilizará automáticamente todos los campos 
+  que Django genere (inputs, selects, textareas).
+*/
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="datetime-local"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Clave para que padding no rompa el ancho */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+/* --- Efecto Focus (al hacer clic) --- */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0,86,179,0.3);
+}
+
+/* --- Mensajes de Ayuda y Error --- */
+.help-text {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.4rem;
+}
+
+.field-errors {
+    color: #dc3545; /* Rojo de error */
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 0.4rem;
+}
+
+/* --- Botón de Envío --- */
+.form-submit {
+    margin-top: 2.5rem;
+    text-align: right;
+}
+
+/* El botón usará el estilo 'btn-primary' 
+  que ya deberías tener en tu 'styles.css'
+*/
+.form-submit .btn-primary {
+    padding: 0.8rem 1.8rem;
+    font-size: 1.1rem;
+}
+
+/* --- Selects de Vehículo y Tipo de Servicio --- */
+.form-group select {
+    background: #fff !important;
+    color: #222;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+}
+
+/* Caja de entrada personalizada para selects y campos de texto */
+.input-box {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background: #fff;
+    color: #222;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.input-box:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0,86,179,0.3);
+}
+
+/* Mejorar visualización de selects */
+.input-box option {
+    color: #222;
+    background: #fff;
+}

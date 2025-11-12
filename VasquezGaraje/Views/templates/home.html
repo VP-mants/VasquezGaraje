@@ -1,63 +1,95 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VasquezGaraje - Mantenimiento a Domicilio</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/home_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
 </head>
 <body>
+
     <nav class="navbar">
-        <div class="logo">VasquezGaraje</div>
-        <div class="nav-links">
-            <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
-                <a href="#quienes-somos">Quiénes Somos</a>
-                <a href="#servicios">Servicios</a>
-                <a href="#galeria">Galería</a>
-                <a href="#reserva">Reserva</a>
-                {% if request.session.cliente_id %}
-                    <span style="font-weight: 700; color: var(--color-primario); background: #eaf4ff; border-radius: 6px; padding: 6px 14px;">Hola, {{ request.session.nombre_cliente }}</span>
-                    <a href="{% url 'logout' %}" class="btn btn-secundario" style="margin-left: 8px;">Cerrar Sesión</a>
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-primario" style="background-color: #005A9C; color: #fff; border: 2px solid #004a80;">Iniciar Sesión</a>
-                {% endif %}
+        <div class="navbar-container container">
+            <a href="{% url 'home' %}" class="logo" style="display: flex; align-items: center; gap: 10px;">
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo Vasquez Garaje" style="height: 48px; width: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <span style="font-size: 1.5rem; font-weight: 700; color: #005A9C; letter-spacing: 1px;">VasquezGaraje</span>
+            </a>
+            
+            <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
+            
+            <label for="nav-toggle" class="nav-toggle-label">
+                <span class="hamburger"></span>
+            </label>
+            
+            <div class="nav-links">
+                <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;" class="nav-links-inner">
+                    <a href="#quienes-somos">Quiénes Somos</a>
+                    <a href="#servicios">Servicios</a>
+                    <a href="#galeria">Galería</a>
+                    <a href="#reserva">Reserva</a>
+                    {% if request.session.cliente_id %}
+                        <span style="font-weight: 700; color: var(--color-primario); background: #eaf4ff; border-radius: 6px; padding: 6px 14px;">Hola, {{ request.session.nombre_cliente }}</span>
+                        <a href="{% url 'logout' %}" class="btn btn-secundario" style="margin-left: 8px;">Cerrar Sesión</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primario" style="background-color: #005A9C; color: #fff; border: 2px solid #004a80;">Iniciar Sesión</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
-    <header class="hero-section">
+
+    <header class="hero-section" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('{% static 'images/imagen 1.jpg' %}'); background-size: cover; background-position: center;">
         <h1>Mantenimiento Profesional de Vehículos a domicilio</h1>
     </header>
+
     <main>
         <section id="quienes-somos" class="page-section">
-            <h2>Quiénes Somos</h2>
-            <p style="text-align: center; max-width: 800px; margin: 0 auto 20px;">
-                Bienvenido a Vásquez Garage Spa, su destino de confianza en la Región Metropolitana, Chile, con 20 años de experiencia en la venta de repuestos y servicios de mantenimiento y reparación de vehículos. Ofrecemos un servicio completamente a domicilio, garantizado y con facturación, asegurando la mejor calidad y prestigio en cada trabajo que realizamos.
-            </p>
-        </section>
-        <section id="servicios" class="page-section" style="background-color: var(--color-superficie);">
-            <h2>Servicios</h2>
-            <p style="text-align: center;">Venta de repuestos, mantenimiento general, reparación de motor, etc.</p>
-        </section>
-        <section id="galeria" class="page-section">
-            <h2>Galería</h2>
-            <div class="gallery-grid">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,1" alt="Trabajo de mecánica 1">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,2" alt="Trabajo de mecánica 2">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,3" alt="Trabajo de mecánica 3">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,4" alt="Trabajo de mecánica 4">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,5" alt="Trabajo de mecánica 5">
-                <img src="https://source.unsplash.com/random/400x300/?car,repair,6" alt="Trabajo de mecánica 6">
+            <div class="container">
+                <h2>Quiénes Somos</h2>
+                <p style="text-align: center; max-width: 800px; margin: 0 auto 20px;">
+                    Bienvenido a Vásquez Garage Spa, su destino de confianza...
+                </p>
             </div>
         </section>
+
+        <section id="servicios" class="page-section" style="background-color: var(--color-fondo-blanco);">
+            <div class="container">
+                <h2>Servicios</h2>
+                <p style="text-align: center;">Venta de repuestos, mantenimiento general, reparación de motor, etc.</p>
+            </div>
+        </section>
+
+        <section id="galeria" class="page-section">
+            <div class="container">
+                <h2>Galería</h2>
+                <div class="gallery-grid">
+                    <img src="{% static 'images/imagen 2.jpg' %}" alt="Trabajo de mecánica 1">
+                    <img src="{% static 'images/Imagen 3.jpg' %}" alt="Trabajo de mecánica 2">
+                    <img src="{% static 'images/Imagen 4.jpg' %}" alt="Trabajo de mecánica 3">
+                </div>
+            </div>
+        </section>
+
         <section id="reserva" class="page-section cta-section">
-            <h2>Reserva tu Hora</h2>
-            <p>Reserva tu hora para tu consulta y realizar una atención personalizada.
-               <br> <strong>Valor de la visita: $35.000</strong>
-            </p>
-            <a href="#" class="btn btn-secundario">Reservar Ahora</a>
+            <div class="container">
+                <h2>Reserva tu Hora</h2>
+                <p>Reserva tu hora para tu consulta y realizar una atención personalizada.
+                   <br> <strong>Valor de la visita: $35.000</strong>
+                </p>
+                <a href="{% url 'agendar_servicio' %}" class="btn btn-secundario" style="background-color: #FFC107; color: #333; border: none;">Reservar Ahora</a>
+            </div>
         </section>
     </main>
-</body>
+
+    <footer class="footer" style="background-color: #333; color: #eee; padding: 20px 0; text-align: center;">
+        <p>&copy; {% now "Y" %} Vasquez Garaje. Todos los derechos reservados.</p>
+    </footer>
+
+    </body>
 </html>
