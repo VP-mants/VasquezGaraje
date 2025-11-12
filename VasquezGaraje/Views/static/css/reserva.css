@@ -1,41 +1,94 @@
-/* Estilos específicos para la página de reservas */
-@import url('styles.css');
-
-.reserva-header {
-    background: var(--color-primario);
-    color: #fff;
-    padding: 32px 0 18px 0;
-    text-align: center;
-    border-radius: 0 0 18px 18px;
-    margin-bottom: 32px;
-    font-size: 2rem;
-    font-weight: 700;
-}
 
 .form-container {
-    background: var(--color-fondo-blanco);
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0,90,156,0.10);
-    padding: 40px 32px;
-    margin-bottom: 32px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 700px; /* Limita el ancho para mejor legibilidad */
+    margin: 2rem auto; /* Centra el formulario en la página */
 }
 
-ul.horarios-ocupados {
-    background: #f9f9f9;
-    border: 1px solid var(--color-borde);
-    border-radius: 10px;
-    padding: 18px;
-    margin-top: 32px;
-    color: var(--color-texto-gris);
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+.form-container h2 {
+    text-align: center;
+    color: #0056b3; /* Coherente con otros títulos */
 }
 
-ul.horarios-ocupados li {
-    margin-bottom: 8px;
-    font-size: 1.05rem;
+.form-container p {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2.5rem;
+}
+
+/* --- Grupos de Campos --- */
+.form-group {
+    margin-bottom: 1.75rem;
+}
+
+/* --- Etiquetas (Labels) --- */
+.form-group label {
+    display: block;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+/* --- Estilo de Inputs, Selects y Textareas --- */
+/* Esto estilizará automáticamente todos los campos 
+  que Django genere (inputs, selects, textareas).
+*/
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="datetime-local"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Clave para que padding no rompa el ancho */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+/* --- Efecto Focus (al hacer clic) --- */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0,86,179,0.3);
+}
+
+/* --- Mensajes de Ayuda y Error --- */
+.help-text {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.4rem;
+}
+
+.field-errors {
+    color: #dc3545; /* Rojo de error */
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 0.4rem;
+}
+
+/* --- Botón de Envío --- */
+.form-submit {
+    margin-top: 2.5rem;
+    text-align: right;
+}
+
+/* El botón usará el estilo 'btn-primary' 
+  que ya deberías tener en tu 'styles.css'
+*/
+.form-submit .btn-primary {
+    padding: 0.8rem 1.8rem;
+    font-size: 1.1rem;
 }

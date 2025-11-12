@@ -1,50 +1,69 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendar Servicio - VasquezGaraje</title>
-    {% load static %}
+    <title>Agendar Servicio - Vasquez Garaje</title>
+    
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/reserva.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="dashboard-layout">
-        <div class="sidebar">
-            <h2>VasquezGaraje</h2>
+
+    <header class="navbar">
+        <div class="container">
+            <h1><a href="{% url 'home' %}">Vasquez Garaje</a></h1>
             <nav>
-                <a href="{% url 'home' %}">Mi Dashboard</a>
-                <a href="#" class="active">Agendar Servicio</a>
-                <a href="#">Cerrar Sesión</a>
+                <ul>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'mis_servicios' %}">Mis Servicios</a></li>
+                        <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                    {% else %}
+                        <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
+                    {% endif %}
+                </ul>
             </nav>
         </div>
-        <div class="main-content">
-            <div class="header">
-                <h1>📅 Agendar Nueva Reserva</h1>
-                <p>Selecciona tu vehículo, el servicio requerido y el lugar de atención.</p>
-            </div>
-            <form method="post" class="form-container" style="max-width: 800px; margin: 0 auto;">
+    </header>
+
+    <main class="container">
+        <div class="page-content form-container">
+            <h2>Agendar un Nuevo Servicio</h2>
+            <p>Completa los siguientes datos para reservar tu cita. Nos pondremos en contacto para confirmar.</p>
+
+            <form method="POST" class="reservation-form">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primario">Reservar</button>
-            </form>
-            <h2>Horarios Ocupados</h2>
-            <ul>
-                {% for h in horarios_ocupados %}
-                    <li>{{ h|date:'d/m/Y H:i' }}</li>
-                {% empty %}
-                    <li>No hay reservas previas.</li>
+
+                {% for field in form %}
+                    <div class="form-group">
+                        
+                        {{ field.label_tag }}
+                        
+                        {{ field }}
+                        
+                        {% if field.errors %}
+                            <div class="field-errors">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                        
+                        {% if field.help_text %}
+                            <small class="help-text">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
                 {% endfor %}
-            </ul>
+
+                <div class="form-submit">
+                    <button type="submit" class="btn-primary">Confirmar Reserva</button>
+                </div>
+            </form>
         </div>
-    </div>
-    <script>
-        document.getElementById('reservaForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            console.log('Datos de la reserva enviados al backend.');
-            alert('Reserva agendada exitosamente (Simulado).');
-        });
-    </script>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; {% now "Y" %} Vasquez Garaje. Todos los derechos reservados.</p>
+    </footer>
+
 </body>
 </html>
