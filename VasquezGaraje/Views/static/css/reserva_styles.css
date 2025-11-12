@@ -1,4 +1,3 @@
-
 .form-container {
     max-width: 700px; /* Limita el ancho para mejor legibilidad */
     margin: 2rem auto; /* Centra el formulario en la página */
@@ -91,4 +90,42 @@
 .form-submit .btn-primary {
     padding: 0.8rem 1.8rem;
     font-size: 1.1rem;
+}
+
+/* --- Selects de Vehículo y Tipo de Servicio --- */
+.form-group select {
+    background: #fff !important;
+    color: #222;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+}
+
+/* Caja de entrada personalizada para selects y campos de texto */
+.input-box {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background: #fff;
+    color: #222;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.input-box:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0,86,179,0.3);
+}
+
+/* Mejorar visualización de selects */
+.input-box option {
+    color: #222;
+    background: #fff;
 }

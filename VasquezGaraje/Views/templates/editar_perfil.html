@@ -1,0 +1,35 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/perfil_styles.css' %}">
+{% extends 'home.html' %}
+{% block content %}
+<div class="dashboard-layout">
+    <div class="profile-section">
+        <h1>Editar Perfil</h1>
+        <form method="POST" class="profile-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-group">
+                <label for="id_nombre_cliente">Nombre</label>
+                {{ form.nombre_cliente }}
+            </div>
+            <div class="form-group">
+                <label for="id_apellido_cliente">Apellido</label>
+                {{ form.apellido_cliente }}
+            </div>
+            <div class="form-group">
+                <label for="id_correo_cliente">Correo electrónico</label>
+                {{ form.correo_cliente }}
+            </div>
+            <div class="form-group">
+                <label for="id_telefono_cliente">Teléfono</label>
+                {{ form.telefono_cliente }}
+            </div>
+            <div class="form-submit">
+                <button type="submit" class="btn btn-primario">Guardar Cambios</button>
+                <a href="{% url 'ver_perfil' %}" class="btn btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

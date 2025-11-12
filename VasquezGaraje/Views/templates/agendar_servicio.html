@@ -7,7 +7,7 @@
     <title>Agendar Servicio - Vasquez Garaje</title>
     
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="stylesheet" href="{% static 'css/reserva.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reserva_styles.css' %}">
 </head>
 <body>
 
@@ -35,30 +35,116 @@
             <form method="POST" class="reservation-form">
                 {% csrf_token %}
 
-                {% for field in form %}
-                    <div class="form-group">
-                        
-                        {{ field.label_tag }}
-                        
-                        {{ field }}
-                        
-                        {% if field.errors %}
-                            <div class="field-errors">
-                                {{ field.errors }}
-                            </div>
-                        {% endif %}
-                        
-                        {% if field.help_text %}
-                            <small class="help-text">{{ field.help_text }}</small>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                <div class="form-group">
+                    <label for="id_vehiculo">Vehículo</label>
+                    {{ form.vehiculo }}
+                    {% if form.vehiculo.errors %}
+                        <div class="field-errors">{{ form.vehiculo.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_servicio">Tipo de Servicio</label>
+                    {{ form.servicio }}
+                    {% if form.servicio.errors %}
+                        <div class="field-errors">{{ form.servicio.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_fecha_hora_inicio">Fecha y Hora</label>
+                    {{ form.fecha_hora_inicio }}
+                    {% if form.fecha_hora_inicio.errors %}
+                        <div class="field-errors">{{ form.fecha_hora_inicio.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_direccion_reserva">Dirección</label>
+                    {{ form.direccion_reserva }}
+                    {% if form.direccion_reserva.errors %}
+                        <div class="field-errors">{{ form.direccion_reserva.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_comuna_reserva">Comuna</label>
+                    {{ form.comuna_reserva }}
+                    {% if form.comuna_reserva.errors %}
+                        <div class="field-errors">{{ form.comuna_reserva.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_notas_cliente">Notas adicionales (opcional)</label>
+                    {{ form.notas_cliente }}
+                    {% if form.notas_cliente.errors %}
+                        <div class="field-errors">{{ form.notas_cliente.errors }}</div>
+                    {% endif %}
+                </div>
 
                 <div class="form-submit">
                     <button type="submit" class="btn-primary">Confirmar Reserva</button>
                 </div>
             </form>
         </div>
+
+        <div class="calendar-section">
+            <h3>Disponibilidad semanal</h3>
+            <div id="calendar" class="calendar-week"></div>
+            <script>
+                // Horarios ocupados desde Django (rango inicio y fin)
+                const horariosOcupados = {{ horarios_ocupados|safe }};
+                // Configuración de la semana actual
+                const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+                const horas = Array.from({length: 12}, (_, i) => i + 8); // 8:00 a 19:00
+                // Obtener el lunes de la semana actual
+                const hoy = new Date();
+                const lunes = new Date(hoy);
+                lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
+                // Generar matriz de celdas con estado ocupado
+                let ocupadas = Array(7).fill(0).map(() => Array(12).fill(false));
+                horariosOcupados.forEach(rango => {
+                    const inicio = new Date(rango.inicio);
+                    const fin = new Date(rango.fin);
+                    for(let d=0; d<7; d++) {
+                        for(let h=0; h<12; h++) {
+                            let celda = new Date(lunes);
+                            celda.setDate(lunes.getDate() + d);
+                            celda.setHours(8 + h, 0, 0, 0);
+                            let celdaFin = new Date(celda);
+                            celdaFin.setMinutes(celda.getMinutes() + 60);
+                            // Si la celda se solapa con el rango ocupado
+                            if (celda < fin && celdaFin > inicio) {
+                                ocupadas[d][h] = true;
+                            }
+                        }
+                    }
+                });
+                let html = '<table class="calendar-table"><thead><tr><th></th>';
+                dias.forEach(d => html += `<th>${d}</th>`);
+                html += '</tr></thead><tbody>';
+                horas.forEach((h, hi) => {
+                    html += `<tr><td>${h}:00</td>`;
+                    for(let d=0; d<7; d++) {
+                        let cellClass = 'calendar-cell';
+                        if (ocupadas[d][hi]) cellClass += ' occupied';
+                        html += `<td class="${cellClass}"></td>`;
+                    }
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                document.getElementById('calendar').innerHTML = html;
+            </script>
+        </div>
+        <style>
+            .calendar-section { margin: 2.5rem 0; }
+            .calendar-table { width: 100%; border-collapse: collapse; }
+            .calendar-table th, .calendar-table td { border: 1px solid #e0e0e0; padding: 6px 8px; text-align: center; }
+            .calendar-table th { background: #005A9C; color: #fff; }
+            .calendar-cell { background: #f7fafd; min-width: 40px; height: 32px; }
+            .calendar-cell.occupied { background: #ffcdd2; color: #b71c1c; font-weight: bold; }
+        </style>
     </main>
 
     <footer class="footer">

@@ -38,15 +38,24 @@ class Servicio(models.Model):
 		db_table = 'SERVICIO'
 		managed = False
 
+
 class Reserva(models.Model):
+	ESTADO_CHOICES = [
+		('Pendiente', 'Pendiente'),
+		('Confirmado', 'Confirmado'),
+		('En Proceso', 'En Proceso'),
+		('Completado', 'Completado'),
+		('Cancelado', 'Cancelado'),
+	]
 	reserva_id = models.AutoField(primary_key=True)
+	usuario = models.ForeignKey(Cliente, db_column='usuario_id', on_delete=models.DO_NOTHING)
 	vehiculo = models.ForeignKey(Vehiculo, db_column='vehiculo_id', on_delete=models.DO_NOTHING)
 	servicio = models.ForeignKey(Servicio, db_column='servicio_id', on_delete=models.DO_NOTHING)
-	fecha_hora_inicio = models.IntegerField()
+	fecha_hora_inicio = models.DateTimeField()
 	direccion_reserva = models.CharField(max_length=255, db_column='dirección_reserva')
 	comuna_reserva = models.CharField(max_length=100, blank=True, null=True)
-	estado_reserva = models.CharField(max_length=50, default='Pendiente')
+	notas_cliente = models.TextField(blank=True, null=True)
+	estado_reserva = models.CharField(max_length=50, choices=ESTADO_CHOICES, default='Pendiente')
 
 	class Meta:
 		db_table = 'RESERVA'
-		managed = False

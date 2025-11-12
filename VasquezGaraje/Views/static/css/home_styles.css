@@ -1,0 +1,143 @@
+
+/* Contenedor del Navbar */
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Logo con imagen */
+.navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-primario);
+    font-size: 1.5rem;
+    font-weight: 900;
+}
+
+.navbar .logo img {
+    height: 40px;
+    border-radius: 4px;
+}
+
+/* --- Botón de Menú Móvil (Hamburguesa CSS-Only) --- */
+
+/* 1. Oculta el checkbox real */
+.nav-toggle-checkbox {
+    display: none;
+}
+
+/* 2. Estilo del Label (la hamburguesa) */
+.nav-toggle-label {
+    display: none; /* Oculto en escritorio */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1001; /* Asegura que esté sobre otros elementos */
+}
+
+.hamburger {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: var(--color-texto-oscuro);
+    position: relative;
+    transition: background 0.2s ease-out;
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--color-texto-oscuro);
+    position: absolute;
+    transition: transform 0.2s ease-out;
+}
+
+.hamburger::before { top: -8px; }
+.hamburger::after { top: 8px; }
+
+
+/* ========================================= */
+/* REGLAS RESPONSIVAS (SOBRE-ESCRIBEN STYLES.CSS) */
+/* ========================================= */
+
+@media (max-width: 900px) {
+    /* Ocultamos el logo de texto en móvil */
+    .navbar .logo span {
+        display: none;
+    }
+
+    /* Oculta los links por defecto */
+    .nav-links {
+        display: none; 
+        flex-direction: column;
+        width: 100%;
+        background: #fff;
+        position: absolute;
+        top: 65px; /* Ajusta según la altura de tu navbar */
+        left: 0;
+        padding: 1rem 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+
+    /* ¡LA MAGIA SIN JAVASCRIPT!
+      Cuando el checkbox está 'checked', muestra el menú
+    */
+    .nav-toggle-checkbox:checked ~ .nav-links {
+        display: flex; 
+    }
+    
+    .nav-links-inner {
+        flex-direction: column;
+        width: 100%;
+        gap: 0 !important;
+    }
+
+    .nav-links a,
+    .nav-links span {
+        width: 100%;
+        text-align: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .nav-links .btn {
+        margin: 10px 20px !important;
+    }
+    
+    /* Muestra el botón de hamburguesa */
+    .nav-toggle-label {
+        display: block;
+    }
+
+    /* Animación de hamburguesa a "X" (CSS-Only) */
+    .nav-toggle-checkbox:checked + .nav-toggle-label .hamburger { 
+        background: transparent; 
+    }
+    .nav-toggle-checkbox:checked + .nav-toggle-label .hamburger::before { 
+        transform: rotate(45deg) translate(5px, 6px); 
+    }
+    .nav-toggle-checkbox:checked + .nav-toggle-label .hamburger::after { 
+        transform: rotate(-45deg) translate(5px, -6px); 
+    }
+
+    /* Ajustamos el .page-section que ya tenías */
+    .page-section {
+        padding: 40px 20px;
+    }
+
+    .hero-section h1 {
+        font-size: 2.2rem;
+    }
+
+    /* Hacemos la galería de 1 columna en móvil */
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+}

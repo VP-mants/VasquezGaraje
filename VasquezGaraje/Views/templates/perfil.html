@@ -1,0 +1,59 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/perfil_styles.css' %}">
+{% extends 'home.html' %}
+{% block content %}
+<div class="dashboard-layout">
+    <div class="profile-section">
+        <h1>Mi Perfil</h1>
+        <div class="profile-info">
+            <p><strong>Nombre:</strong> {{ usuario.nombre_cliente }} {{ usuario.apellido_cliente }}</p>
+            <p><strong>Email:</strong> {{ usuario.correo_cliente }}</p>
+            <p><strong>Teléfono:</strong> {{ usuario.telefono_cliente }}</p>
+            <a href="{% url 'editar_perfil' %}" class="btn btn-secundario">Editar Perfil</a>
+        </div>
+    </div>
+    <div class="main-content">
+        <h2>Mis Reservas</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Vehículo</th>
+                    <th>Servicio</th>
+                    <th>Dirección</th>
+                    <th>Comuna</th>
+                    <th>Notas</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas %}
+                <tr>
+                    <td>{{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</td>
+                    <td>{{ reserva.vehiculo.patente }} ({{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }})</td>
+                    <td>{{ reserva.servicio.nombre_servicio }}</td>
+                    <td>{{ reserva.direccion_reserva }}</td>
+                    <td>{{ reserva.comuna_reserva }}</td>
+                    <td>{{ reserva.notas_cliente|default:'-' }}</td>
+                    <td>{{ reserva.estado_reserva }}</td>
+                    <td>
+                        {% if reserva.estado_reserva == 'Pendiente' %}
+                            <a href="{% url 'editar_reserva' reserva.reserva_id %}" class="btn btn-small">Editar</a>
+                            <a href="{% url 'cancelar_reserva' reserva.reserva_id %}" class="btn btn-small btn-danger">Cancelar</a>
+                        {% elif reserva.estado_reserva == 'Confirmado' %}
+                            <a href="{% url 'cancelar_reserva' reserva.reserva_id %}" class="btn btn-small btn-danger">Cancelar</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8">No tienes reservas registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
