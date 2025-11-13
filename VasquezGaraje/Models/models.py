@@ -1,4 +1,21 @@
+
 from django.db import models
+
+class Insumo(models.Model):
+	insumo_id = models.AutoField(primary_key=True)
+	nombre = models.CharField(max_length=100)
+	descripcion = models.TextField(blank=True, null=True)
+	cantidad = models.PositiveIntegerField(default=0)
+	unidad_medida = models.CharField(max_length=20, default='unidad')
+	precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+	fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		db_table = 'INSUMO'
+		managed = True
+
+	def __str__(self):
+		return self.nombre
 
 class Cliente(models.Model):
 	cliente_id = models.AutoField(primary_key=True)
@@ -54,8 +71,10 @@ class Reserva(models.Model):
 	fecha_hora_inicio = models.DateTimeField()
 	direccion_reserva = models.CharField(max_length=255, db_column='dirección_reserva')
 	comuna_reserva = models.CharField(max_length=100, blank=True, null=True)
+	patente = models.CharField(max_length=10, help_text="Ej: AB123CD", blank=True, null=True)
 	notas_cliente = models.TextField(blank=True, null=True)
 	estado_reserva = models.CharField(max_length=50, choices=ESTADO_CHOICES, default='Pendiente')
 
 	class Meta:
 		db_table = 'RESERVA'
+		managed = True

@@ -11,6 +11,7 @@ class ReservaForm(forms.ModelForm):
             'fecha_hora_inicio',
             'direccion_reserva',
             'comuna_reserva',
+            'patente',
             'notas_cliente',
         ]
         widgets = {
@@ -19,5 +20,6 @@ class ReservaForm(forms.ModelForm):
             'fecha_hora_inicio': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'input-box'}),
             'direccion_reserva': forms.TextInput(attrs={'class': 'input-box'}),
             'comuna_reserva': forms.TextInput(attrs={'class': 'input-box'}),
+            'patente': forms.TextInput(attrs={'class': 'input-box', 'placeholder': 'Ej: AB123CD'}),
             'notas_cliente': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Notas adicionales (opcional)', 'class': 'input-box'}),
         }
