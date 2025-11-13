@@ -1,0 +1,17 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main_styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+{% extends 'home.html' %}
+{% block content %}
+<div class="dashboard-layout">
+    <div class="main-content">
+        <h1>Eliminar Insumo</h1>
+        <p>¿Estás seguro de que deseas eliminar el insumo <strong>{{ insumo.nombre }}</strong>?</p>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a href="{% url 'admin_inventario' %}" class="btn btn-secundario">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main_styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+{% extends 'home.html' %}
+{% block content %}
+<div class="dashboard-layout">
+    <div class="main-content">
+        <h1>Inventario de Insumos</h1>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-secundario">Volver al Panel Admin</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Unidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Última Actualización</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for insumo in insumos %}
+                <tr>
+                    <td>{{ insumo.insumo_id }}</td>
+                    <td>{{ insumo.nombre }}</td>
+                    <td>{{ insumo.descripcion|default:'-' }}</td>
+                    <td>{{ insumo.cantidad }}</td>
+                    <td>{{ insumo.unidad_medida }}</td>
+                    <td>${{ insumo.precio_unitario }}</td>
+                    <td>{{ insumo.fecha_actualizacion|date:'d/m/Y H:i' }}</td>
+                    <td>
+                        <!-- Botones CRUD: editar, eliminar (próximos pasos) -->
+                        <a href="{% url 'admin_insumo_editar' insumo.insumo_id %}" class="btn btn-small">Editar</a>
+                        <a href="{% url 'admin_insumo_eliminar' insumo.insumo_id %}" class="btn btn-small btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8">No hay insumos registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'admin_insumo_nuevo' %}" class="btn btn-primario" style="margin-top: 1rem;">Agregar Nuevo Insumo</a>
+    </div>
+</div>
+{% endblock %}

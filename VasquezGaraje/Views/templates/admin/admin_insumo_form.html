@@ -1,0 +1,39 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+{% extends 'home.html' %}
+{% block content %}
+<div class="dashboard-layout">
+    <div class="main-content">
+        <h1>{{ accion }} Insumo</h1>
+        <form method="POST" class="reservation-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-group">
+                <label for="id_nombre">Nombre</label>
+                {{ form.nombre }}
+            </div>
+            <div class="form-group">
+                <label for="id_descripcion">Descripción</label>
+                {{ form.descripcion }}
+            </div>
+            <div class="form-group">
+                <label for="id_cantidad">Cantidad</label>
+                {{ form.cantidad }}
+            </div>
+            <div class="form-group">
+                <label for="id_unidad_medida">Unidad de Medida</label>
+                {{ form.unidad_medida }}
+            </div>
+            <div class="form-group">
+                <label for="id_precio_unitario">Precio Unitario</label>
+                {{ form.precio_unitario }}
+            </div>
+            <div class="form-submit">
+                <button type="submit" class="btn btn-primario">Guardar</button>
+                <a href="{% url 'admin_inventario' %}" class="btn btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

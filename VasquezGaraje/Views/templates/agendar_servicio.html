@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendar Servicio - Vasquez Garaje</title>
     
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main_styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/reserva_styles.css' %}">
 </head>
 <body>
@@ -53,9 +53,17 @@
 
                 <div class="form-group">
                     <label for="id_fecha_hora_inicio">Fecha y Hora</label>
-                    {{ form.fecha_hora_inicio }}
+                    <input type="datetime-local" name="fecha_hora_inicio" id="id_fecha_hora_inicio" class="input-box" min="{{ min_datetime }}" max="{{ max_datetime }}" step="1800" value="{{ form.fecha_hora_inicio.value|default_if_none:'' }}">
                     {% if form.fecha_hora_inicio.errors %}
                         <div class="field-errors">{{ form.fecha_hora_inicio.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_patente">Patente</label>
+                    {{ form.patente }}
+                    {% if form.patente.errors %}
+                        <div class="field-errors">{{ form.patente.errors }}</div>
                     {% endif %}
                 </div>
 

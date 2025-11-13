@@ -1,3 +1,78 @@
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+# CRUD Insumos para admin
+def admin_insumo_nuevo(request):
+	if not request.session.get('cliente_id'):
+		return redirect('login')
+	cliente_id = request.session['cliente_id']
+	usuario = get_object_or_404(Cliente, pk=cliente_id)
+	if not usuario.es_admin:
+		messages.error(request, 'Acceso restringido solo para administradores.')
+		return redirect('home')
+	from django import forms
+	class InsumoForm(forms.ModelForm):
+		class Meta:
+			model = Insumo
+			fields = ['nombre', 'descripcion', 'cantidad', 'unidad_medida', 'precio_unitario']
+	if request.method == 'POST':
+		form = InsumoForm(request.POST)
+		if form.is_valid():
+			form.save()
+			messages.success(request, 'Insumo creado correctamente.')
+			return redirect('admin_inventario')
+	else:
+		form = InsumoForm()
+	return render(request, 'admin/admin_insumo_form.html', {'form': form, 'accion': 'Nuevo'})
+
+def admin_insumo_editar(request, id):
+	if not request.session.get('cliente_id'):
+		return redirect('login')
+	cliente_id = request.session['cliente_id']
+	usuario = get_object_or_404(Cliente, pk=cliente_id)
+	if not usuario.es_admin:
+		messages.error(request, 'Acceso restringido solo para administradores.')
+		return redirect('home')
+	insumo = get_object_or_404(Insumo, pk=id)
+	from django import forms
+	class InsumoForm(forms.ModelForm):
+		class Meta:
+			model = Insumo
+			fields = ['nombre', 'descripcion', 'cantidad', 'unidad_medida', 'precio_unitario']
+	if request.method == 'POST':
+		form = InsumoForm(request.POST, instance=insumo)
+		if form.is_valid():
+			form.save()
+			messages.success(request, 'Insumo actualizado correctamente.')
+			return redirect('admin_inventario')
+	else:
+		form = InsumoForm(instance=insumo)
+	return render(request, 'admin/admin_insumo_form.html', {'form': form, 'accion': 'Editar'})
+
+def admin_insumo_eliminar(request, id):
+	if not request.session.get('cliente_id'):
+		return redirect('login')
+	cliente_id = request.session['cliente_id']
+	usuario = get_object_or_404(Cliente, pk=cliente_id)
+	if not usuario.es_admin:
+		messages.error(request, 'Acceso restringido solo para administradores.')
+		return redirect('home')
+	insumo = get_object_or_404(Insumo, pk=id)
+	if request.method == 'POST':
+		insumo.delete()
+		messages.success(request, 'Insumo eliminado correctamente.')
+		return redirect('admin_inventario')
+	return render(request, 'admin/admin_insumo_eliminar.html', {'insumo': insumo})
+from Models.models import Insumo
+def admin_inventario(request):
+	if not request.session.get('cliente_id'):
+		return redirect('login')
+	cliente_id = request.session['cliente_id']
+	usuario = get_object_or_404(Cliente, pk=cliente_id)
+	if not usuario.es_admin:
+		messages.error(request, 'Acceso restringido solo para administradores.')
+		return redirect('home')
+	insumos = Insumo.objects.all().order_by('nombre')
+	return render(request, 'admin/admin_inventario.html', {'insumos': insumos})
 def admin_dashboard(request):
 	if not request.session.get('cliente_id'):
 		return redirect('login')
@@ -6,13 +81,42 @@ def admin_dashboard(request):
 	if not usuario.es_admin:
 		messages.error(request, 'Acceso restringido solo para administradores.')
 		return redirect('home')
+	from datetime import datetime
 	filtro_estado = request.GET.get('estado', '')
 	reservas = Reserva.objects.all().select_related('usuario', 'vehiculo', 'servicio')
 	if filtro_estado:
 		reservas = reservas.filter(estado_reserva=filtro_estado)
+	# Estadísticas para análisis
+	hoy = datetime.now()
+	reservas_mes = Reserva.objects.filter(fecha_hora_inicio__year=hoy.year, fecha_hora_inicio__month=hoy.month)
+	total_reservas_mes = reservas_mes.count()
+	ingresos_estimados_mes = sum([r.servicio.duracion_servicio * 10 for r in reservas_mes])  # Ejemplo: duración*10 como valor estimado
+	# Insumo más usado (simulado: el de mayor cantidad)
+	try:
+		from Models.models import Insumo
+		insumo_mas_usado = Insumo.objects.order_by('-cantidad').first()
+		insumo_mas_usado = insumo_mas_usado.nombre if insumo_mas_usado else '-'
+	except:
+		insumo_mas_usado = '-'
+
+	# Clientes nuevos del mes (por patente única)
+	patentes_mes = set(reservas_mes.values_list('patente', flat=True))
+	patentes_anteriores = set(Reserva.objects.filter(fecha_hora_inicio__lt=reservas_mes.earliest('fecha_hora_inicio').fecha_hora_inicio if reservas_mes else hoy).values_list('patente', flat=True))
+	patentes_nuevas = patentes_mes - patentes_anteriores
+	total_clientes_nuevos = len(patentes_nuevas)
+	total_clientes_antiguos = len(patentes_mes & patentes_anteriores)
+	pastel_clientes = {
+		'nuevos': total_clientes_nuevos,
+		'antiguos': total_clientes_antiguos
+	}
+
 	return render(request, 'admin/admin_dashboard.html', {
 		'reservas': reservas,
 		'filtro_estado': filtro_estado,
+		'total_reservas_mes': total_reservas_mes,
+		'ingresos_estimados_mes': ingresos_estimados_mes,
+		'insumo_mas_usado': insumo_mas_usado,
+		'pastel_clientes': pastel_clientes,
 	})
 
 def admin_editar_reserva(request, id):
@@ -45,19 +149,53 @@ def editar_reserva(request, id):
 	if reserva.estado_reserva != 'Pendiente':
 		messages.error(request, 'Solo puedes editar reservas pendientes.')
 		return redirect('ver_perfil')
+	vehiculos = Vehiculo.objects.filter(usuario_id=cliente_id)
+	servicios = Servicio.objects.all()
+	reservas_existentes = Reserva.objects.exclude(pk=reserva.pk)
+	from datetime import time, timedelta, datetime
 	if request.method == 'POST':
 		form = ReservaForm(request.POST, instance=reserva)
-		form.fields['vehiculo'].queryset = Vehiculo.objects.filter(usuario_id=cliente_id)
-		form.fields['servicio'].queryset = Servicio.objects.all()
+		form.fields['vehiculo'].queryset = vehiculos
+		form.fields['servicio'].queryset = servicios
 		if form.is_valid():
-			form.save()
-			messages.success(request, 'Reserva actualizada correctamente.')
-			return redirect('ver_perfil')
+			nueva_reserva = form.save(commit=False)
+			hora_inicio = nueva_reserva.fecha_hora_inicio.time()
+			if not (time(10,0) <= hora_inicio <= time(18,30)):
+				messages.error(request, 'El horario de reservas es entre 10:00 y 18:30.')
+			else:
+				nueva_inicio = nueva_reserva.fecha_hora_inicio
+				nueva_fin = nueva_inicio + timedelta(hours=2, minutes=30)
+				solapada = False
+				for r in reservas_existentes:
+					inicio = r.fecha_hora_inicio
+					fin = inicio + timedelta(hours=2, minutes=30)
+					if (nueva_inicio < fin and nueva_fin > inicio):
+						solapada = True
+						break
+				if solapada:
+					messages.error(request, 'Ya existe una reserva en ese horario o se solapa con otra. Elige otro horario.')
+				else:
+					nueva_reserva.save()
+					# Enviar correo de confirmación de edición
+					from django.core.mail import send_mail
+					cliente = Cliente.objects.get(pk=cliente_id)
+					send_mail(
+						'Actualización de Reserva - Vasquez Garaje',
+						f'Estimado/a {cliente.nombre_cliente},\n\nSu reserva ha sido actualizada para el día {nueva_reserva.fecha_hora_inicio.strftime("%d/%m/%Y a las %H:%M")} para el vehículo con patente {nueva_reserva.patente}.\n\nGracias por preferirnos.',
+						'no-reply@vasquezgaraje.cl',
+						[cliente.correo_cliente],
+						fail_silently=True
+					)
+					messages.success(request, 'Reserva actualizada correctamente. Se ha enviado un correo de confirmación.')
+					return redirect('ver_perfil')
 	else:
 		form = ReservaForm(instance=reserva)
-		form.fields['vehiculo'].queryset = Vehiculo.objects.filter(usuario_id=cliente_id)
-		form.fields['servicio'].queryset = Servicio.objects.all()
-	return render(request, 'editar_reserva.html', {'form': form, 'reserva': reserva})
+		form.fields['vehiculo'].queryset = vehiculos
+		form.fields['servicio'].queryset = servicios
+	hoy = datetime.now().strftime('%Y-%m-%d')
+	min_datetime = f"{hoy}T10:00"
+	max_datetime = f"{hoy}T18:30"
+	return render(request, 'editar_reserva.html', {'form': form, 'reserva': reserva, 'min_datetime': min_datetime, 'max_datetime': max_datetime})
 
 def cancelar_reserva(request, id):
 	if not request.session.get('cliente_id'):
@@ -192,23 +330,38 @@ def agendar_servicio(request):
 			reserva = form.save(commit=False)
 			reserva.usuario_id = cliente_id
 			reserva.estado_reserva = 'Pendiente'
-			# Validar solapamiento de 2h30min
-			from datetime import timedelta
-			nueva_inicio = reserva.fecha_hora_inicio
-			nueva_fin = nueva_inicio + timedelta(hours=2, minutes=30)
-			solapada = False
-			for r in reservas_existentes:
-				inicio = r.fecha_hora_inicio
-				fin = inicio + timedelta(hours=2, minutes=30)
-				if (nueva_inicio < fin and nueva_fin > inicio):
-					solapada = True
-					break
-			if solapada:
-				messages.error(request, 'Ya existe una reserva en ese horario o se solapa con otra. Elige otro horario.')
+			# Validar horario permitido (10:00 a 18:30)
+			hora_inicio = reserva.fecha_hora_inicio.time()
+			from datetime import time, timedelta
+			if not (time(10,0) <= hora_inicio <= time(18,30)):
+				messages.error(request, 'El horario de reservas es entre 10:00 y 18:30.')
 			else:
-				reserva.save()
-				messages.success(request, 'Reserva realizada exitosamente.')
-				return redirect('perfil_usuario')
+				# Validar solapamiento de 2h30min
+				nueva_inicio = reserva.fecha_hora_inicio
+				nueva_fin = nueva_inicio + timedelta(hours=2, minutes=30)
+				solapada = False
+				for r in reservas_existentes:
+					inicio = r.fecha_hora_inicio
+					fin = inicio + timedelta(hours=2, minutes=30)
+					if (nueva_inicio < fin and nueva_fin > inicio):
+						solapada = True
+						break
+				if solapada:
+					messages.error(request, 'Ya existe una reserva en ese horario o se solapa con otra. Elige otro horario.')
+				else:
+					reserva.save()
+					# Enviar correo de confirmación
+					from django.core.mail import send_mail
+					cliente = Cliente.objects.get(pk=cliente_id)
+					send_mail(
+						'Confirmación de Reserva - Vasquez Garaje',
+						f'Estimado/a {cliente.nombre_cliente},\n\nSu reserva ha sido registrada para el día {reserva.fecha_hora_inicio.strftime("%d/%m/%Y a las %H:%M")} para el vehículo con patente {reserva.patente}.\n\nGracias por preferirnos.',
+						'no-reply@vasquezgaraje.cl',
+						[cliente.correo_cliente],
+						fail_silently=True
+					)
+					messages.success(request, 'Reserva realizada exitosamente. Se ha enviado un correo de confirmación.')
+					return redirect('perfil_usuario')
 	else:
 		form = ReservaForm()
 		form.fields['vehiculo'].queryset = vehiculos
@@ -222,11 +375,19 @@ def agendar_servicio(request):
 		}
 		for r in reservas_existentes
 	]
+	# Pasar rango de horario permitido al template para el input
+	min_datetime = ''
+	from datetime import datetime
+	hoy = datetime.now().strftime('%Y-%m-%d')
+	min_datetime = f"{hoy}T10:00"
+	max_datetime = f"{hoy}T18:30"
 	return render(request, 'agendar_servicio.html', {
 		'form': form,
 		'horarios_ocupados': horarios_ocupados,
 		'vehiculos': vehiculos,
-		'servicios': servicios
+		'servicios': servicios,
+		'min_datetime': min_datetime,
+		'max_datetime': max_datetime
 	})
 
 def perfil_usuario(request):

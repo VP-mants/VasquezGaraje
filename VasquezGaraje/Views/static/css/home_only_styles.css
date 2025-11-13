@@ -1,0 +1,141 @@
+/* home_only_styles.css - Estilos exclusivos para home.html */
+
+body {
+    background: #f6f8f8;
+    font-family: 'Inter', Arial, sans-serif;
+    color: #222;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    background: #0561a5;
+    padding: 0.5rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-links-inner a, .nav-links-inner span {
+    font-size: 1rem;
+    color: #fff;
+    text-decoration: none;
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+.nav-links-inner .btn {
+    font-size: 1rem;
+    padding: 6px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.hero-section {
+    padding: 2.5rem 0 1.5rem 0;
+    text-align: center;
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('../images/imagen 1.jpg');
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 2rem;
+}
+
+.page-section {
+    margin: 2.5rem 0;
+    padding: 0 1.5rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.gallery-grid {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: 2rem;
+}
+.gallery-grid img {
+    width: 220px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: #fff;
+    border: 1px solid #e0e0e0;
+}
+
+.cta-section {
+    background: #fffbe6;
+    border-radius: 10px;
+    padding: 2rem 1.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    max-width: 400px;
+    margin-left: auto;
+}
+
+.cta-section h2 {
+    color: #005A9C;
+    margin-bottom: 0.5rem;
+}
+
+.cta-section .btn-primario {
+    background: #ffc107;
+    color: #222;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 24px;
+    margin-top: 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+@media (max-width: 900px) {
+    .gallery-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    .gallery-grid img {
+        width: 98vw;
+        max-width: 340px;
+    }
+    .cta-section {
+        max-width: 98vw;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .hero-section {
+        font-size: 1.2rem;
+        padding: 1.2rem 0 0.7rem 0;
+    }
+    .gallery-grid img {
+        height: 100px;
+    }
+}

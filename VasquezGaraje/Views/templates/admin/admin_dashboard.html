@@ -1,58 +1,170 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/main_styles.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
 {% extends 'home.html' %}
 {% block content %}
 <div class="dashboard-layout">
+    <div class="admin-tabs">
+        <button class="tab-btn" onclick="showTab('inventario')">Inventario</button>
+        <button class="tab-btn" onclick="showTab('reservas')">Reservas</button>
+        <button class="tab-btn" onclick="showTab('analisis')">Análisis</button>
+    </div>
     <div class="main-content">
-        <h1>Panel de Reservas (Admin)</h1>
-        <form method="get" class="filter-form">
-            <label for="estado">Filtrar por estado:</label>
-            <select name="estado" id="estado" onchange="this.form.submit()">
-                <option value="">Todos</option>
-                <option value="Pendiente" {% if filtro_estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
-                <option value="Confirmado" {% if filtro_estado == 'Confirmado' %}selected{% endif %}>Confirmado</option>
-                <option value="En Proceso" {% if filtro_estado == 'En Proceso' %}selected{% endif %}>En Proceso</option>
-                <option value="Completado" {% if filtro_estado == 'Completado' %}selected{% endif %}>Completado</option>
-                <option value="Cancelado" {% if filtro_estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
-            </select>
-        </form>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Vehículo</th>
-                    <th>Servicio</th>
-                    <th>Fecha y Hora</th>
-                    <th>Dirección</th>
-                    <th>Comuna</th>
-                    <th>Notas</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for reserva in reservas %}
-                <tr>
-                    <td>{{ reserva.reserva_id }}</td>
-                    <td>{{ reserva.usuario.nombre_cliente }} {{ reserva.usuario.apellido_cliente }}</td>
-                    <td>{{ reserva.vehiculo.patente }} ({{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }})</td>
-                    <td>{{ reserva.servicio.nombre_servicio }}</td>
-                    <td>{{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</td>
-                    <td>{{ reserva.direccion_reserva }}</td>
-                    <td>{{ reserva.comuna_reserva }}</td>
-                    <td>{{ reserva.notas_cliente|default:'-' }}</td>
-                    <td>{{ reserva.estado_reserva }}</td>
-                    <td>
-                        <a href="{% url 'admin_editar_reserva' reserva.reserva_id %}" class="btn btn-small">Editar</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="10">No hay reservas registradas.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Inventario (Insumos) -->
+        <section id="tab-inventario" class="admin-tab-section" style="display:none;">
+            <h2>Inventario de Insumos</h2>
+            <a href="{% url 'admin_inventario' %}" class="btn btn-primario">Gestionar Inventario</a>
+        </section>
+        <!-- Reservas -->
+        <section id="tab-reservas" class="admin-tab-section" style="display:none;">
+            <h2>Reservas de Clientes</h2>
+            <form method="get" class="filter-form">
+                <label for="estado">Filtrar por estado:</label>
+                <select name="estado" id="estado" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    <option value="Pendiente" {% if filtro_estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                    <option value="Confirmado" {% if filtro_estado == 'Confirmado' %}selected{% endif %}>Confirmado</option>
+                    <option value="En Proceso" {% if filtro_estado == 'En Proceso' %}selected{% endif %}>En Proceso</option>
+                    <option value="Completado" {% if filtro_estado == 'Completado' %}selected{% endif %}>Completado</option>
+                    <option value="Cancelado" {% if filtro_estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+                </select>
+            </form>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Vehículo</th>
+                        <th>Servicio</th>
+                        <th>Fecha y Hora</th>
+                        <th>Dirección</th>
+                        <th>Comuna</th>
+                        <th>Notas</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td>{{ reserva.reserva_id }}</td>
+                        <td>{{ reserva.usuario.nombre_cliente }} {{ reserva.usuario.apellido_cliente }}</td>
+                        <td>{{ reserva.vehiculo.patente }} ({{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }})</td>
+                        <td>{{ reserva.servicio.nombre_servicio }}</td>
+                        <td>{{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</td>
+                        <td>{{ reserva.direccion_reserva }}</td>
+                        <td>{{ reserva.comuna_reserva }}</td>
+                        <td>{{ reserva.notas_cliente|default:'-' }}</td>
+                        <td>{{ reserva.estado_reserva }}</td>
+                        <td>
+                            <a href="{% url 'admin_editar_reserva' reserva.reserva_id %}" class="btn btn-small">Editar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="10">No hay reservas registradas.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <!-- Análisis -->
+        <section id="tab-analisis" class="admin-tab-section" style="display:none;">
+            <h2>Análisis y Estadísticas</h2>
+            <div class="analisis-cards">
+                <div class="analisis-card">
+                    <h3>Total Reservas Mes</h3>
+                    <p class="analisis-num">{{ total_reservas_mes }}</p>
+                </div>
+                <div class="analisis-card">
+                    <h3>Ingresos Estimados</h3>
+                    <p class="analisis-num">${{ ingresos_estimados_mes }}</p>
+                </div>
+                <div class="analisis-card">
+                    <h3>Insumo más usado</h3>
+                    <p class="analisis-num">{{ insumo_mas_usado }}</p>
+                </div>
+            </div>
+            <div class="grafico-pastel-container">
+                <h3>Clientes Nuevos vs Antiguos</h3>
+                <canvas id="pastelClientes"></canvas>
+                <div class="leyenda-pastel">
+                    <span class="leyenda-nuevo"><span class="color-circulo" style="background:#4caf50;"></span> Nuevos</span>
+                    <span class="leyenda-antiguo"><span class="color-circulo" style="background:#1976d2;"></span> Antiguos</span>
+                </div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                function ajustarTamanioPastel() {
+                    const canvas = document.getElementById('pastelClientes');
+                    if(window.innerWidth < 600) {
+                        canvas.width = 220;
+                        canvas.height = 220;
+                    } else {
+                        canvas.width = 340;
+                        canvas.height = 340;
+                    }
+                }
+                ajustarTamanioPastel();
+                window.addEventListener('resize', ajustarTamanioPastel);
+                const pastelClientes = document.getElementById('pastelClientes').getContext('2d');
+                new Chart(pastelClientes, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Nuevos', 'Antiguos'],
+                        datasets: [{
+                            data: [{{ pastel_clientes.nuevos }}, {{ pastel_clientes.antiguos }}],
+                            backgroundColor: ['#4caf50', '#1976d2'],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        let value = context.parsed;
+                                        return `${label}: ${value}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+            <style>
+                .grafico-pastel-container {
+                    max-width: 400px;
+                    margin: 2rem auto;
+                    text-align: center;
+                }
+                .leyenda-pastel {
+                    display: flex;
+                    justify-content: center;
+                    gap: 1.5rem;
+                    margin-top: 1rem;
+                }
+                .color-circulo {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 50%;
+                    margin-right: 6px;
+                    vertical-align: middle;
+                }
+                @media (max-width: 600px) {
+                    .grafico-pastel-container { max-width: 98vw; }
+                }
+            </style>
+        </section>
     </div>
 </div>
+<script>
+    function showTab(tab) {
+        document.querySelectorAll('.admin-tab-section').forEach(s => s.style.display = 'none');
+        document.getElementById('tab-' + tab).style.display = 'block';
+    }
+    // Mostrar por defecto la pestaña de Reservas
+    showTab('reservas');
+</script>
 {% endblock %}
