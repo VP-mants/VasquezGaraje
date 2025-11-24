@@ -1,11 +1,25 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
 {% extends 'home.html' %}
+{% load static %}
+
+{% block title %}Editar Reserva (Admin) - Vasquez Garaje{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="dashboard-layout">
+<div class="container" style="padding: 40px 20px;">
     <div class="main-content">
-        <h1>Editar Reserva (Admin)</h1>
+        <h1 style="margin-bottom: 16px; color: var(--color-primario);">Editar Reserva (Admin)</h1>
+        <nav class="admin-subnav">
+            <span class="admin-subnav__identity">Administrador: {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
+            <div class="admin-subnav__links">
+                <a href="{% url 'admin_perfil' %}">Perfil</a>
+                <a href="{% url 'admin_dashboard' %}" class="active">Reservas</a>
+                <a href="{% url 'admin_inventario' %}">Inventario</a>
+                <a href="{% url 'admin_usuarios' %}">Usuarios</a>
+            </div>
+        </nav>
         <form method="POST" class="reservation-form">
             {% csrf_token %}
             {{ form.non_field_errors }}

@@ -1,0 +1,78 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block title %}Gestión de Usuarios - Vasquez Garaje{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 20px;">
+    <div class="main-content">
+        <h1 style="margin-bottom: 16px; color: var(--color-primario);">Gestión de Usuarios</h1>
+        <nav class="admin-subnav" style="margin-bottom: 24px;">
+            <span class="admin-subnav__identity">Administrador: {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
+            <div class="admin-subnav__links">
+                <a href="{% url 'admin_perfil' %}">Perfil</a>
+                <a href="{% url 'admin_dashboard' %}">Reservas</a>
+                <a href="{% url 'admin_inventario' %}">Inventario</a>
+                <a href="{% url 'admin_usuarios' %}" class="active">Usuarios</a>
+            </div>
+        </nav>
+
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Rol</th>
+                        <th style="width: 180px;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ cliente.nombre_cliente }} {{ cliente.apellido_cliente }}</td>
+                        <td>{{ cliente.correo_cliente }}</td>
+                        <td>{{ cliente.telefono_cliente }}</td>
+                        <td>
+                            {% if cliente.es_admin %}
+                                <span style="color: #005A9C; font-weight: 600;">Administrador</span>
+                            {% else %}
+                                Usuario
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if cliente.pk != admin_usuario.pk %}
+                                <form method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="cliente_id" value="{{ cliente.pk }}">
+                                    {% if cliente.es_admin %}
+                                        <input type="hidden" name="accion" value="remove_admin">
+                                        <button type="submit" class="btn btn-danger btn-small">Quitar admin</button>
+                                    {% else %}
+                                        <input type="hidden" name="accion" value="make_admin">
+                                        <button type="submit" class="btn btn-primario btn-small">Hacer admin</button>
+                                    {% endif %}
+                                </form>
+                            {% else %}
+                                <small style="color: #607d8b;">Eres tú</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px;">No hay clientes registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

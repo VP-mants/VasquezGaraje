@@ -1,0 +1,128 @@
+/* auth_styles.css - Estilos exclusivos para Login, Registro y Recuperación */
+
+/* --- Layout General de Autenticación --- */
+.auth-wrapper {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: var(--color-fondo-claro); /* Usa variable de styles.css */
+}
+
+/* Tarjeta Dividida (Login / Recuperar) */
+.auth-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 90, 156, 0.15);
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    max-width: 900px;
+    min-height: 550px;
+    border: 1px solid #ddd;
+}
+
+/* Panel Izquierdo (Imagen) */
+.auth-image-panel {
+    flex: 1;
+    background: linear-gradient(135deg, #005A9C 0%, #004a80 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.auth-image-panel h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.auth-image-panel p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 80%;
+}
+
+/* Panel Derecho (Formulario) */
+.auth-form-panel {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #fff;
+}
+
+.auth-form-panel h2 {
+    color: #005A9C;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.auth-form-panel p {
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.auth-form-panel a {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 15px;
+    display: inline-block;
+    color: #005A9C;
+}
+
+/* --- Estilos para Registro (Caja Simple) --- */
+.form-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    padding: 40px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+}
+
+.form-container h2 {
+    text-align: center;
+    color: #005A9C;
+    margin-bottom: 30px;
+}
+
+/* --- Manejo de Errores --- */
+.form-errors {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #dc3545;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+}
+
+/* --- Responsividad Móvil --- */
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column;
+    }
+    .auth-image-panel {
+        padding: 30px 20px;
+        min-height: 150px;
+    }
+    .auth-form-panel {
+        padding: 30px 20px;
+    }
+}

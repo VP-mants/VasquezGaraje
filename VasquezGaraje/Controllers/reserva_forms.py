@@ -15,8 +15,8 @@ class ReservaForm(forms.ModelForm):
             'notas_cliente',
         ]
         widgets = {
-            'vehiculo': forms.Select(attrs={'class': 'input-box'}),
-            'servicio': forms.Select(attrs={'class': 'input-box'}),
+            'vehiculo': forms.TextInput(attrs={'class': 'input-box'}),
+            'servicio': forms.TextInput(attrs={'class': 'input-box'}),
             'fecha_hora_inicio': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'input-box'}),
             'direccion_reserva': forms.TextInput(attrs={'class': 'input-box'}),
             'comuna_reserva': forms.TextInput(attrs={'class': 'input-box'}),

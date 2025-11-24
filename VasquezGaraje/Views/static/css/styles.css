@@ -1,28 +1,16 @@
-/* ===== 1. VARIABLES GLOBALES Y RESET BÁSICO ===== */
+/* ===== styles.css - ESTILOS GLOBALES ===== */
 :root {
-    /* Paleta de Colores Principal */
-    --color-primario: #005A9C;     /* Azul Corporativo de VasquezGaraje */
-    --color-secundario: #FFC107;   /* Amarillo de Alerta/Énfasis */
-    --color-fondo-claro: #F4F7F6;  /* Fondo de la aplicación/paneles */
+    --color-primario: #005A9C;
+    --color-secundario: #FFC107;
+    --color-fondo-claro: #F4F7F6;
     --color-fondo-blanco: #FFFFFF;
-    
-    /* Colores de Texto y Elementos */
     --color-texto-oscuro: #333333;
     --color-texto-gris: #555555;
     --color-borde: #DDDDDD;
-    --color-exito: #28a745;
-    --color-alerta: #dc3545; /* Rojo para eliminar */
-
-    /* Tipografía */
     --font-principal: 'Inter', sans-serif;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: var(--font-principal);
@@ -34,221 +22,83 @@ body {
     flex-direction: column;
 }
 
-
-h1, h2, h3 {
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 15px;
-    letter-spacing: 0.5px;
+/* --- Estructura --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
 }
 
-a {
-    color: var(--color-primario);
-    text-decoration: none;
-    transition: color 0.3s;
-}
+main { flex: 1; }
 
-a:hover {
-    color: #004a80; /* Tono más oscuro de primario */
-}
-
-
-/* ===== 2. NAVBAR Y LAYOUT GENERAL ===== */
+/* --- Navbar Global --- */
 .navbar {
     background: var(--color-primario);
-    color: #fff;
-    padding: 18px 0;
+    padding: 15px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.navbar-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 8px rgba(0,90,156,0.07);
-    margin-bottom: 32px;
-}
-.navbar .logo {
-    font-size: 2rem;
-    font-weight: 900;
-    margin-left: 32px;
-    letter-spacing: 1px;
-}
-.navbar .nav-links {
-    margin-right: 32px;
 }
 
-.page-section {
-    padding: 48px 0 32px 0;
-    max-width: 1100px;
-    margin: 0 auto;
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 15px;
+    font-size: 0.95rem;
 }
 
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 18px;
-    margin-top: 24px;
-}
-.gallery-grid img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,90,156,0.08);
-    border: 2px solid #eaf4ff;
-}
+.nav-links a:hover { text-decoration: underline; }
 
-main {
-    flex: 1;
-}
-
-footer {
-    background: #eaf4ff;
-    color: var(--color-primario);
-    text-align: center;
-    padding: 18px 0;
-    font-size: 1rem;
-    margin-top: 32px;
-}
-
-/* ===== 3. BOTONES Y FORMULARIOS ===== */
-
-/* Botón Primario */
+/* --- Botones (Mantenemos tus estilos) --- */
 .btn {
-    padding: 12px 25px;
-    border: none;
+    padding: 10px 20px;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     text-align: center;
-    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    text-decoration: none;
     display: inline-block;
+    border: none;
+    transition: 0.3s;
 }
 
-.btn-primario {
-    background-color: #005A9C;
-    color: #fff;
+/* Botón Azul */
+.btn-primario, .btn-primary { 
+    background-color: var(--color-primario);
+    color: white !important; 
     border: 2px solid #004a80;
 }
-
-.btn-primario:hover {
+.btn-primario:hover, .btn-primary:hover {
     background-color: #004a80;
-    color: var(--color-fondo-blanco);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 90, 156, 0.2);
 }
 
-/* Grupos de Formulario */
-.form-group {
-    margin-bottom: 20px;
+/* Botón Amarillo */
+.btn-secundario {
+    background-color: var(--color-secundario);
+    color: #333 !important;
 }
+.btn-secundario:hover { background-color: #ffcd38; }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
+/* Botón Rojo (Acciones peligrosas) */
+.btn-danger {
+    background-color: #dc3545;
+    color: white !important;
+    padding: 6px 12px; /* Un poco más pequeño para tablas */
     font-size: 0.9rem;
-    color: var(--color-texto-gris);
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="tel"],
-input[type="date"],
-input[type="time"],
-select,
-textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid var(--color-borde);
-    border-radius: 8px;
-    font-family: var(--font-principal);
-    font-size: 1rem;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--color-primario);
-    box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.2);
-}
-
-/* Grid básico para formularios (ej: dos campos en una línea) */
-.grid-2col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-
-/* ===== 3. PÁGINAS DE AUTENTICACIÓN (LOGIN/RECUPERAR) ===== */
-
-.auth-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-.auth-container {
-    display: flex;
-    width: 900px;
-    max-width: 95vw;
-    min-height: 550px;
-    background-color: var(--color-fondo-blanco);
-    border-radius: 12px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-    overflow: hidden; 
-}
-
-/* Panel de Imagen (Izquierda) */
-.auth-image-panel {
-    flex: 1; 
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1553854894-c71c7e36b876');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
+/* --- Footer --- */
+.footer {
+    background: #333;
+    color: #eee;
     text-align: center;
+    padding: 20px 0;
+    margin-top: auto;
 }
-
-.auth-image-panel h2 {
-    font-size: 2.2rem;
-    font-weight: 900;
-    margin-bottom: 0;
-}
-
-/* Panel de Formulario (Derecha) */
-.auth-form-panel {
-    flex: 1; 
-    padding: 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.auth-form-panel h1 {
-    font-size: 2rem;
-    margin-bottom: 5px;
-}
-
-.auth-form-panel .subtitulo {
-    color: var(--color-texto-gris);
-    margin-bottom: 30px;
-    font-size: 1rem;
-}
-
-.auth-form-links {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 25px;
-    font-size: 0.9rem;
-}
-.auth-form-links a {
-    margin-top: 10px;
-}
-

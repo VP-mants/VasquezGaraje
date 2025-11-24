@@ -4,10 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VasquezGaraje - Mantenimiento a Domicilio</title>
+    <title>{% block title %}VasquezGaraje - Mantenimiento a Domicilio{% endblock %}</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/home_only_styles.css' %}">
+    {% endblock %}
     
 </head>
 <body>
@@ -15,38 +20,51 @@
     <nav class="navbar">
         <div class="navbar-container container">
             <a href="{% url 'home' %}" class="logo" style="display: flex; align-items: center; gap: 10px;">
-                <img src="{% static 'images/logo.jpg' %}" alt="Logo Vasquez Garaje" style="height: 48px; width: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <span style="font-size: 1.5rem; font-weight: 700; color: #005A9C; letter-spacing: 1px;">VasquezGaraje</span>
+                <img src="{% static 'images/logo.svg' %}" alt="Logo Vasquez Garaje" style="height: 48px; width: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <span style="font-size: 1.5rem; font-weight: 700; color: #fff; letter-spacing: 1px;"></span>
             </a>
             
-            <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
-            
-            <label for="nav-toggle" class="nav-toggle-label">
-                <span class="hamburger"></span>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox" style="display:none;">
+            <label for="nav-toggle" class="nav-toggle-label" style="display:none; cursor:pointer;">
+                <span class="hamburger" style="color:white; font-size:24px;">☰</span>
             </label>
             
             <div class="nav-links">
                 <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;" class="nav-links-inner">
-                    <a href="#quienes-somos">Quiénes Somos</a>
-                    <a href="#servicios">Servicios</a>
-                    <a href="#galeria">Galería</a>
-                    <a href="#reserva">Reserva</a>
-                    {% if request.session.cliente_id %}
-                        <span style="font-weight: 700; color: var(--color-primario); background: #eaf4ff; border-radius: 6px; padding: 6px 14px;">Hola, {{ request.session.nombre_cliente }}</span>
-                        <a href="{% url 'logout' %}" class="btn btn-secundario" style="margin-left: 8px;">Cerrar Sesión</a>
+                    {% if request.session.es_admin %}
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span style="color:#fff; font-weight:600;">Hola, {{ request.session.nombre_cliente }} {% if request.session.apellido_cliente %}{{ request.session.apellido_cliente }}{% endif %}</span>
+                            <a href="{% url 'admin_perfil' %}" class="btn btn-primario" style="background:#FFC107; color:#333; border:none;">Perfil Admin</a>
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-secundario" style="background:#fff; color:#005A9C;">Reservas</a>
+                            <a href="{% url 'admin_inventario' %}" class="btn btn-secundario" style="background:#fff; color:#005A9C;">Inventario</a>
+                            <a href="{% url 'admin_usuarios' %}" class="btn btn-secundario" style="background:#fff; color:#005A9C;">Usuarios</a>
+                            <a href="{% url 'logout' %}" class="btn btn-secundario" style="margin-left: 8px;">Salir</a>
+                        </div>
                     {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-primario" style="background-color: #005A9C; color: #fff; border: 2px solid #004a80;">Iniciar Sesión</a>
+                        <a href="{% url 'home' %}#quienes-somos">Quiénes Somos</a>
+                        <a href="{% url 'home' %}#servicios">Servicios</a>
+                        <a href="{% url 'home' %}#galeria">Galería</a>
+                        <a href="{% url 'agendar_servicio' %}">Reserva</a>
+
+                        {% if request.session.cliente_id %}
+                            <span style="color:#fff; font-weight:600;">Hola, {{ request.session.nombre_cliente }} {% if request.session.apellido_cliente %}{{ request.session.apellido_cliente }}{% endif %}</span>
+                            <a href="{% url 'ver_perfil' %}" class="btn btn-secundario">Mi Perfil</a>
+                            <a href="{% url 'logout' %}" class="btn btn-secundario" style="margin-left: 8px;">Salir</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primario">Entrar</a>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
-    <header class="hero-section" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('{% static 'images/imagen 1.jpg' %}'); background-size: cover; background-position: center;">
-        <h1>Mantenimiento Profesional de Vehículos a domicilio</h1>
-    </header>
-
     <main>
+        {% block content %}
+        <header class="hero-section" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('{% static 'images/imagen 1.jpg' %}'); background-size: cover; background-position: center;">
+            <h1>Mantenimiento Profesional de Vehículos a domicilio</h1>
+        </header>
+
         <section id="quienes-somos" class="page-section">
             <div class="container">
                 <h2>Quiénes Somos</h2>
@@ -77,17 +95,16 @@
         <section id="reserva" class="page-section cta-section">
             <div class="container">
                 <h2>Reserva tu Hora</h2>
-                <p>Reserva tu hora para tu consulta y realizar una atención personalizada.
-                   <br> <strong>Valor de la visita: $35.000</strong>
-                </p>
-                <a href="{% url 'agendar_servicio' %}" class="btn btn-secundario" style="background-color: #FFC107; color: #333; border: none;">Reservar Ahora</a>
+                <p>Reserva tu hora para una atención personalizada.<br> </p>
+                <a href="{% url 'agendar_servicio' %}" class="btn btn-secundario">Reservar Ahora</a>
             </div>
         </section>
+        {% endblock %}
     </main>
 
-    <footer class="footer" style="background-color: #333; color: #eee; padding: 20px 0; text-align: center;">
+    <footer class="footer">
         <p>&copy; {% now "Y" %} Vasquez Garaje. Todos los derechos reservados.</p>
     </footer>
 
-    </body>
-</html>
+</body>
+</html
