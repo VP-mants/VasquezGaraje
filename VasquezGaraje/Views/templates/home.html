@@ -20,8 +20,8 @@
     <nav class="navbar">
         <div class="navbar-container container">
             <a href="{% url 'home' %}" class="logo" style="display: flex; align-items: center; gap: 10px;">
-                <img src="{% static 'images/logo.svg' %}" alt="Logo Vasquez Garaje" style="height: 48px; width: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <span style="font-size: 1.5rem; font-weight: 700; color: #fff; letter-spacing: 1px;"></span>
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo Vasquez Garaje" style="height: 72px; width: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <span style="font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: 0.08em; text-transform: uppercase;"></span>
             </a>
             
             <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox" style="display:none;">
@@ -30,7 +30,7 @@
             </label>
             
             <div class="nav-links">
-                <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;" class="nav-links-inner">
+                <div style="display: flex; align-items: center; gap: 36px; flex-wrap: wrap;" class="nav-links-inner">
                     {% if request.session.es_admin %}
                         <div style="display:flex; align-items:center; gap:12px;">
                             <span style="color:#fff; font-weight:600;">Hola, {{ request.session.nombre_cliente }} {% if request.session.apellido_cliente %}{{ request.session.apellido_cliente }}{% endif %}</span>
@@ -41,17 +41,21 @@
                             <a href="{% url 'logout' %}" class="btn btn-secundario" style="margin-left: 8px;">Salir</a>
                         </div>
                     {% else %}
-                        <a href="{% url 'home' %}#quienes-somos">Quiénes Somos</a>
-                        <a href="{% url 'home' %}#servicios">Servicios</a>
-                        <a href="{% url 'home' %}#galeria">Galería</a>
-                        <a href="{% url 'agendar_servicio' %}">Reserva</a>
+                        <div style="display:flex; align-items:center; gap:36px;">
+                            <a href="{% url 'home' %}#quienes-somos">Quiénes Somos</a>
+                            <a href="{% url 'home' %}#servicios">Servicios</a>
+                            <a href="{% url 'home' %}#galeria">Galería</a>
+                            <a href="{% url 'agendar_servicio' %}">Reserva</a>
+                        </div>
 
                         {% if request.session.cliente_id %}
-                            <span style="color:#fff; font-weight:600;">Hola, {{ request.session.nombre_cliente }} {% if request.session.apellido_cliente %}{{ request.session.apellido_cliente }}{% endif %}</span>
-                            <a href="{% url 'ver_perfil' %}" class="btn btn-secundario">Mi Perfil</a>
-                            <a href="{% url 'logout' %}" class="btn btn-secundario" style="margin-left: 8px;">Salir</a>
+                            <div style="display:flex; align-items:center; gap:20px;">
+                                <span style="color:#fff; font-weight:600;">Hola, {{ request.session.nombre_cliente }} {% if request.session.apellido_cliente %}{{ request.session.apellido_cliente }}{% endif %}</span>
+                                <a href="{% url 'ver_perfil' %}" class="btn btn-secundario" style="margin-left:0;">Mi Perfil</a>
+                                <a href="{% url 'logout' %}" class="btn btn-secundario" style="margin-left:0;">Salir</a>
+                            </div>
                         {% else %}
-                            <a href="{% url 'login' %}" class="btn btn-primario">Entrar</a>
+                            <a href="{% url 'login' %}" class="btn btn-secundario">Entrar</a>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -85,9 +89,18 @@
             <div class="container">
                 <h2>Galería</h2>
                 <div class="gallery-grid">
-                    <img src="{% static 'images/imagen 2.jpg' %}" alt="Trabajo de mecánica 1">
-                    <img src="{% static 'images/Imagen 3.jpg' %}" alt="Trabajo de mecánica 2">
-                    <img src="{% static 'images/Imagen 4.jpg' %}" alt="Trabajo de mecánica 3">
+                    <img src="{% static 'images/imagen de muestra 1.jpeg' %}" alt="Imagen de muestra 01" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 2.jpeg' %}" alt="Imagen de muestra 02" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 3.jpeg' %}" alt="Imagen de muestra 03" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 4.jpeg' %}" alt="Imagen de muestra 04" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 5.jpeg' %}" alt="Imagen de muestra 05" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 6.jpeg' %}" alt="Imagen de muestra 06" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 7.jpeg' %}" alt="Imagen de muestra 07" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 8.jpeg' %}" alt="Imagen de muestra 08" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 9.jpeg' %}" alt="Imagen de muestra 09" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 10.jpeg' %}" alt="Imagen de muestra 10" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 11.jpeg' %}" alt="Imagen de muestra 11" loading="lazy">
+                    <img src="{% static 'images/imagen de muestra 12.jpeg' %}" alt="Imagen de muestra 12" loading="lazy">
                 </div>
             </div>
         </section>
@@ -106,5 +119,72 @@
         <p>&copy; {% now "Y" %} Vasquez Garaje. Todos los derechos reservados.</p>
     </footer>
 
+    <div id="galleryLightbox" class="gallery-lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+        <figure class="gallery-lightbox__frame">
+            <button type="button" class="gallery-lightbox__close" aria-label="Cerrar imagen">&times;</button>
+            <img id="galleryLightboxImage" class="gallery-lightbox__image" src="" alt="">
+            <figcaption id="galleryLightboxCaption" class="gallery-lightbox__caption"></figcaption>
+        </figure>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var lightbox = document.getElementById('galleryLightbox');
+            var lightboxImage = document.getElementById('galleryLightboxImage');
+            var lightboxCaption = document.getElementById('galleryLightboxCaption');
+            var closeButton = lightbox.querySelector('.gallery-lightbox__close');
+            var lastFocused = null;
+
+            function openLightbox(img) {
+                lastFocused = document.activeElement;
+                lightboxImage.src = img.src;
+                lightboxImage.alt = img.alt;
+                lightboxCaption.textContent = img.alt || '';
+                lightbox.classList.add('is-open');
+                lightbox.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+                closeButton.focus();
+            }
+
+            function closeLightbox() {
+                lightbox.classList.remove('is-open');
+                lightbox.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('modal-open');
+                lightboxImage.src = '';
+                if (lastFocused) {
+                    lastFocused.focus();
+                }
+            }
+
+            document.querySelectorAll('.gallery-grid img').forEach(function (img) {
+                img.addEventListener('click', function () {
+                    openLightbox(img);
+                });
+                img.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openLightbox(img);
+                    }
+                });
+                img.setAttribute('tabindex', '0');
+                img.setAttribute('role', 'button');
+            });
+
+            closeButton.addEventListener('click', closeLightbox);
+
+            lightbox.addEventListener('click', function (event) {
+                if (event.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && lightbox.classList.contains('is-open')) {
+                    closeLightbox();
+                }
+            });
+        });
+    </script>
+
 </body>
-</html
+</html>

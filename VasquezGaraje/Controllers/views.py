@@ -1,18 +1,112 @@
+import json
 from datetime import datetime, timedelta, time
+from decimal import Decimal
 
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
-from django.db.models import Count, Sum
+from django.db.models import Count, Max, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.formats import date_format
 
-from Controllers.forms import LoginForm, RegistroForm
-from Controllers.reserva_forms import ReservaForm
+from Controllers.forms import CambiarContrasenaForm, LoginForm, RegistroForm
+from Controllers.reserva_forms import ReservaForm, get_servicios_ordenados
 from Models.models import Cliente, Insumo, Reserva, Servicio, Vehiculo
+
+
+RESERVA_DURACION = timedelta(hours=1, minutes=30)
+HORARIO_APERTURA = time(10, 0)
+HORARIO_CIERRE = time(18, 30)
+
+
+def _calcular_min_datetime_reserva():
+    """Devuelve la primera fecha disponible respetando la jornada y el momento actual."""
+    ahora = timezone.localtime()
+
+    if ahora.time() < HORARIO_APERTURA:
+        return _asegurar_aware(datetime.combine(ahora.date(), HORARIO_APERTURA))
+
+    if ahora.time() > HORARIO_CIERRE:
+        siguiente = ahora.date() + timedelta(days=1)
+        return _asegurar_aware(datetime.combine(siguiente, HORARIO_APERTURA))
+
+    candidato = ahora.replace(second=0, microsecond=0)
+    resto = candidato.minute % 30
+    if resto != 0:
+        candidato += timedelta(minutes=30 - resto)
+
+    if candidato.time() > HORARIO_CIERRE:
+        siguiente = ahora.date() + timedelta(days=1)
+        return _asegurar_aware(datetime.combine(siguiente, HORARIO_APERTURA))
+
+    return candidato
+
+
+def _formatear_datetime_para_input(valor):
+    """Formatea una fecha con zona horaria a la cadena esperada por inputs HTML."""
+    localizado = timezone.localtime(valor)
+    return localizado.strftime('%Y-%m-%dT%H:%M')
+
+
+def _configurar_widget_fecha(formulario, min_datetime_str):
+    min_date = min_datetime_str.split('T')[0]
+
+    if 'fecha_hora_inicio' in formulario.fields:
+        formulario.fields['fecha_hora_inicio'].widget = forms.HiddenInput()
+        formulario.fields['fecha_hora_inicio'].required = False
+
+    fecha_field = formulario.fields.get('fecha_reserva')
+    if fecha_field:
+        fecha_field.widget.attrs.setdefault('class', 'input-box')
+        fecha_field.widget.attrs['min'] = min_date
+
+    hora_field = formulario.fields.get('hora_reserva')
+    if hora_field:
+        hora_field.widget.attrs.setdefault('class', 'input-box')
+
+
+def _asegurar_aware(fecha):
+    if timezone.is_naive(fecha):
+        return timezone.make_aware(fecha, timezone.get_current_timezone())
+    return fecha
+
+
+def _es_intervalo_media_hora(fecha):
+    return fecha.minute in (0, 30) and fecha.second == 0 and fecha.microsecond == 0
+
+
+def _obtener_o_crear_vehiculo(usuario, descripcion, patente):
+    if not patente:
+        raise ValueError('Debes ingresar la patente del vehículo.')
+
+    patente_normalizada = patente.strip().upper()
+    descripcion = (descripcion or '').strip()
+
+    vehiculo, creado = Vehiculo.objects.get_or_create(
+        patente=patente_normalizada,
+        defaults={'usuario': usuario},
+    )
+
+    necesita_guardar = creado
+
+    if vehiculo.usuario_id != usuario.pk:
+        vehiculo.usuario = usuario
+        necesita_guardar = True
+
+    if descripcion:
+        descripcion_corta = descripcion[:50]
+        if vehiculo.marca != descripcion_corta:
+            vehiculo.marca = descripcion_corta
+            necesita_guardar = True
+
+    if necesita_guardar:
+        vehiculo.save()
+
+    return vehiculo
 
 
 # -----------------------
@@ -30,6 +124,8 @@ def _require_admin(request):
         messages.error(request, 'Acceso restringido solo para administradores.')
         return None, redirect('home')
 
+    ensure_insumos_predeterminados()
+
     return usuario, None
 
 
@@ -43,6 +139,47 @@ def _set_cliente_session(request, cliente):
 def _clear_cliente_session(request):
     for key in ['cliente_id', 'nombre_cliente', 'apellido_cliente', 'es_admin']:
         request.session.pop(key, None)
+
+
+_INSUMOS_PREDETERMINADOS = (
+    {
+        'nombre': 'Aceite 10W-40',
+        'descripcion': 'Lubricante multigrado para motores a gasolina.',
+        'cantidad': 12,
+        'unidad_medida': 'litros',
+        'precio_unitario': Decimal('15990.00'),
+    },
+    {
+        'nombre': 'Filtro de aceite',
+        'descripcion': 'Repuesto compatible con modelos sedán y hatchback.',
+        'cantidad': 20,
+        'unidad_medida': 'unidad',
+        'precio_unitario': Decimal('8990.00'),
+    },
+    {
+        'nombre': 'Líquido de frenos DOT4',
+        'descripcion': 'Fluido para mantenimientos correctivos del sistema de frenos.',
+        'cantidad': 10,
+        'unidad_medida': 'litros',
+        'precio_unitario': Decimal('12990.00'),
+    },
+)
+
+
+def ensure_insumos_predeterminados():
+    if Insumo.objects.exists():
+        return
+
+    for datos in _INSUMOS_PREDETERMINADOS:
+        Insumo.objects.get_or_create(
+            nombre=datos['nombre'],
+            defaults={
+                'descripcion': datos['descripcion'],
+                'cantidad': datos['cantidad'],
+                'unidad_medida': datos['unidad_medida'],
+                'precio_unitario': datos['precio_unitario'],
+            },
+        )
 
 
 # -----------------------
@@ -154,9 +291,29 @@ def admin_dashboard(request):
         return respuesta
 
     filtro_estado = request.GET.get('estado', '')
-    reservas = Reserva.objects.all().select_related('usuario', 'vehiculo', 'servicio')
+    reservas_qs = (
+        Reserva.objects.all()
+        .select_related('usuario', 'vehiculo', 'servicio')
+        .order_by('-fecha_hora_inicio')
+    )
     if filtro_estado:
-        reservas = reservas.filter(estado_reserva=filtro_estado)
+        reservas_qs = reservas_qs.filter(estado_reserva=filtro_estado)
+
+    reservas_detalle = []
+    for reserva in reservas_qs:
+        inicio_local = timezone.localtime(_asegurar_aware(reserva.fecha_hora_inicio))
+        fin_local = inicio_local + RESERVA_DURACION
+        reservas_detalle.append(
+            {
+                'id': reserva.reserva_id,
+                'cliente_nombre': f"{reserva.usuario.nombre_cliente} {reserva.usuario.apellido_cliente}".strip(),
+                'vehiculo': getattr(reserva.vehiculo, 'patente', str(reserva.vehiculo)),
+                'servicio': getattr(reserva.servicio, 'nombre_servicio', str(reserva.servicio)),
+                'inicio': inicio_local,
+                'fin': fin_local,
+                'estado': reserva.estado_reserva,
+            }
+        )
 
     hoy = timezone.now()
     reservas_mes = Reserva.objects.filter(
@@ -165,6 +322,30 @@ def admin_dashboard(request):
     )
     total_reservas_mes = reservas_mes.count()
     ingresos_estimados_mes = sum([r.servicio.duracion_servicio * 10 for r in reservas_mes])
+
+    clientes_resumen_qs = (
+        Reserva.objects.all()
+        .values('usuario_id', 'usuario__nombre_cliente', 'usuario__apellido_cliente')
+        .annotate(total=Count('reserva_id'), ultima=Max('fecha_hora_inicio'))
+        .order_by('-total', 'usuario__nombre_cliente', 'usuario__apellido_cliente')
+    )
+
+    clientes_resumen = []
+    for fila in clientes_resumen_qs[:8]:
+        ultima_inicio = fila['ultima']
+        ultima_inicio_local = None
+        ultima_fin_local = None
+        if ultima_inicio:
+            ultima_inicio_local = timezone.localtime(_asegurar_aware(ultima_inicio))
+            ultima_fin_local = ultima_inicio_local + RESERVA_DURACION
+        clientes_resumen.append(
+            {
+                'nombre': f"{fila['usuario__nombre_cliente']} {fila['usuario__apellido_cliente']}".strip(),
+                'total': fila['total'],
+                'ultima_inicio': ultima_inicio_local,
+                'ultima_fin': ultima_fin_local,
+            }
+        )
 
     insumo_obj = Insumo.objects.order_by('-cantidad').first()
     insumo_mas_usado = insumo_obj.nombre if insumo_obj else '-'
@@ -188,8 +369,11 @@ def admin_dashboard(request):
     }
 
     contexto = {
-        'reservas': reservas,
+        'reservas_detalle': reservas_detalle,
+        'reservas_total': len(reservas_detalle),
+        'clientes_resumen': clientes_resumen,
         'filtro_estado': filtro_estado,
+        'estado_opciones': Reserva.ESTADO_CHOICES,
         'total_reservas_mes': total_reservas_mes,
         'ingresos_estimados_mes': ingresos_estimados_mes,
         'insumo_mas_usado': insumo_mas_usado,
@@ -333,57 +517,79 @@ def editar_reserva(request, id):
         messages.error(request, 'Solo puedes editar reservas pendientes.')
         return redirect('ver_perfil')
 
-    vehiculos = Vehiculo.objects.filter(usuario_id=cliente_id)
-    servicios = Servicio.objects.all()
-    reservas_existentes = Reserva.objects.exclude(pk=reserva.pk)
+    servicios = get_servicios_ordenados()
+    reservas_existentes = Reserva.objects.exclude(pk=reserva.pk).exclude(estado_reserva='Cancelado')
+
+    min_datetime_obj = _calcular_min_datetime_reserva()
+    min_datetime_str = _formatear_datetime_para_input(min_datetime_obj)
 
     if request.method == 'POST':
         form = ReservaForm(request.POST, instance=reserva)
-        form.fields['vehiculo'].queryset = vehiculos
-        form.fields['servicio'].queryset = servicios
-        if form.is_valid():
-            nueva_reserva = form.save(commit=False)
-            hora_inicio = nueva_reserva.fecha_hora_inicio.time()
-            if not (time(10, 0) <= hora_inicio <= time(18, 30)):
-                messages.error(request, 'El horario de reservas es entre 10:00 y 18:30.')
-            else:
-                nueva_inicio = nueva_reserva.fecha_hora_inicio
-                nueva_fin = nueva_inicio + timedelta(hours=2, minutes=30)
-                solapada = False
-                for r in reservas_existentes:
-                    inicio = r.fecha_hora_inicio
-                    fin = inicio + timedelta(hours=2, minutes=30)
-                    if nueva_inicio < fin and nueva_fin > inicio:
-                        solapada = True
-                        break
-                if solapada:
-                    messages.error(request, 'Ya existe una reserva en ese horario o se solapa con otra. Elige otro horario.')
-                else:
-                    nueva_reserva.save()
-                    cliente = Cliente.objects.get(pk=cliente_id)
-                    send_mail(
-                        'Actualización de Reserva - Vasquez Garaje',
-                        (
-                            f"Estimado/a {cliente.nombre_cliente},\n\n"
-                            "Su reserva ha sido actualizada para el día "
-                            f"{nueva_reserva.fecha_hora_inicio.strftime('%d/%m/%Y a las %H:%M')} "
-                            f"para el vehículo con patente {nueva_reserva.patente}.\n\n"
-                            "Gracias por preferirnos."
-                        ),
-                        'no-reply@vasquezgaraje.cl',
-                        [cliente.correo_cliente],
-                        fail_silently=True,
-                    )
-                    messages.success(request, 'Reserva actualizada correctamente. Se ha enviado un correo de confirmación.')
-                    return redirect('ver_perfil')
     else:
         form = ReservaForm(instance=reserva)
-        form.fields['vehiculo'].queryset = vehiculos
-        form.fields['servicio'].queryset = servicios
 
-    hoy = datetime.now().strftime('%Y-%m-%d')
-    min_datetime = f"{hoy}T10:00"
-    max_datetime = f"{hoy}T18:30"
+    form.fields['servicio'].queryset = servicios
+    form.fields['servicio'].empty_label = 'Selecciona un servicio'
+    _configurar_widget_fecha(form, min_datetime_str)
+
+    def _add_slot_error(message, include_date=False):
+        if include_date:
+            form.add_error('fecha_reserva', message)
+        form.add_error('hora_reserva', message)
+        form.add_error('fecha_hora_inicio', message)
+
+    if request.method == 'POST' and form.is_valid():
+        descripcion = form.cleaned_data.get('vehiculo_texto')
+        patente = form.cleaned_data.get('patente')
+
+        try:
+            vehiculo = _obtener_o_crear_vehiculo(reserva.usuario, descripcion, patente)
+        except ValueError as error:
+            form.add_error('patente', error)
+        else:
+            nueva_reserva = form.save(commit=False)
+            nueva_reserva.vehiculo = vehiculo
+            nueva_reserva.patente = vehiculo.patente
+            nueva_inicio = _asegurar_aware(nueva_reserva.fecha_hora_inicio)
+            inicio_local = timezone.localtime(nueva_inicio)
+
+            if inicio_local < min_datetime_obj:
+                _add_slot_error('No puedes seleccionar un horario en el pasado.', include_date=True)
+            elif not _es_intervalo_media_hora(inicio_local):
+                _add_slot_error('Selecciona horarios en bloques de 30 minutos.')
+            else:
+                hora_inicio = inicio_local.time()
+                if not (HORARIO_APERTURA <= hora_inicio <= HORARIO_CIERRE):
+                    _add_slot_error('El horario de reservas es entre 10:00 y 18:30.')
+                else:
+                    nueva_fin = nueva_inicio + RESERVA_DURACION
+                    solapada = False
+                    for r in reservas_existentes:
+                        inicio_existente = _asegurar_aware(r.fecha_hora_inicio)
+                        fin_existente = inicio_existente + RESERVA_DURACION
+                        if nueva_inicio < fin_existente and nueva_fin > inicio_existente:
+                            solapada = True
+                            break
+                    if solapada:
+                        _add_slot_error('Ya existe una reserva en ese horario o se solapa con otra. Elige otro horario.')
+                    else:
+                        nueva_reserva.save()
+                        cliente = reserva.usuario
+                        send_mail(
+                            'Actualización de Reserva - Vasquez Garaje',
+                            (
+                                f"Estimado/a {cliente.nombre_cliente},\n\n"
+                                "Su reserva ha sido actualizada para el día "
+                                f"{inicio_local.strftime('%d/%m/%Y a las %H:%M')} "
+                                f"para el vehículo con patente {nueva_reserva.patente}.\n\n"
+                                "Gracias por preferirnos."
+                            ),
+                            'no-reply@vasquezgaraje.cl',
+                            [cliente.correo_cliente],
+                            fail_silently=True,
+                        )
+                        messages.success(request, 'Reserva actualizada correctamente. Se ha enviado un correo de confirmación.')
+                        return redirect('ver_perfil')
 
     return render(
         request,
@@ -391,8 +597,6 @@ def editar_reserva(request, id):
         {
             'form': form,
             'reserva': reserva,
-            'min_datetime': min_datetime,
-            'max_datetime': max_datetime,
         },
     )
 
@@ -402,6 +606,10 @@ def cancelar_reserva(request, id):
         return redirect('login')
 
     cliente_id = request.session['cliente_id']
+    if request.method != 'POST':
+        messages.error(request, 'Acción inválida para cancelar la reserva.')
+        return redirect('ver_perfil')
+
     reserva = get_object_or_404(Reserva, pk=id, usuario_id=cliente_id)
     if reserva.estado_reserva not in ['Pendiente', 'Confirmado']:
         messages.error(request, 'Solo puedes cancelar reservas pendientes o confirmadas.')
@@ -437,6 +645,31 @@ def editar_perfil(request):
         form = EditarPerfilForm(instance=usuario)
 
     return render(request, 'editar_perfil.html', {'form': form, 'usuario': usuario})
+
+
+def cambiar_contrasena(request):
+    if not request.session.get('cliente_id'):
+        return redirect('login')
+
+    cliente_id = request.session['cliente_id']
+    usuario = get_object_or_404(Cliente, pk=cliente_id)
+
+    if request.method == 'POST':
+        form = CambiarContrasenaForm(request.POST)
+        if form.is_valid():
+            actual = form.cleaned_data['contrasena_actual']
+            if not check_password(actual, usuario.contraseña_cliente):
+                form.add_error('contrasena_actual', 'La contraseña actual no es correcta.')
+            else:
+                nueva = form.cleaned_data['nueva_contrasena']
+                usuario.contraseña_cliente = make_password(nueva)
+                usuario.save()
+                messages.success(request, 'Contraseña actualizada correctamente.')
+                return redirect('ver_perfil')
+    else:
+        form = CambiarContrasenaForm()
+
+    return render(request, 'cambiar_contrasena.html', {'form': form, 'usuario': usuario})
 
 
 # -----------------------
@@ -514,78 +747,141 @@ def agendar_servicio(request):
         return redirect('login')
 
     cliente_id = request.session['cliente_id']
-    vehiculos = Vehiculo.objects.filter(usuario_id=cliente_id)
-    servicios = Servicio.objects.all()
-    reservas_existentes = Reserva.objects.all()
+    servicios = get_servicios_ordenados()
+    reservas_existentes = (
+        Reserva.objects.exclude(estado_reserva='Cancelado')
+        .select_related('vehiculo', 'servicio', 'usuario')
+    )
+
+    min_datetime_obj = _calcular_min_datetime_reserva()
+    min_datetime_str = _formatear_datetime_para_input(min_datetime_obj)
+
+    min_local = timezone.localtime(min_datetime_obj)
 
     if request.method == 'POST':
         form = ReservaForm(request.POST)
-        form.fields['vehiculo'].queryset = vehiculos
-        form.fields['servicio'].queryset = servicios
-        if form.is_valid():
-            reserva = form.save(commit=False)
-            reserva.usuario_id = cliente_id
-            reserva.estado_reserva = 'Pendiente'
-            hora_inicio = reserva.fecha_hora_inicio.time()
-            if not (time(10, 0) <= hora_inicio <= time(18, 30)):
-                messages.error(request, 'El horario de reservas es entre 10:00 y 18:30.')
-            else:
-                nueva_inicio = reserva.fecha_hora_inicio
-                nueva_fin = nueva_inicio + timedelta(hours=2, minutes=30)
-                solapada = False
-                for r in reservas_existentes:
-                    inicio = r.fecha_hora_inicio
-                    fin = inicio + timedelta(hours=2, minutes=30)
-                    if nueva_inicio < fin and nueva_fin > inicio:
-                        solapada = True
-                        break
-                if solapada:
-                    messages.error(request, 'Ya existe una reserva en ese horario o se solapa con otra. Elige otro horario.')
-                else:
-                    reserva.save()
-                    cliente = Cliente.objects.get(pk=cliente_id)
-                    send_mail(
-                        'Confirmación de Reserva - Vasquez Garaje',
-                        (
-                            f"Estimado/a {cliente.nombre_cliente},\n\n"
-                            "Su reserva ha sido registrada para el día "
-                            f"{reserva.fecha_hora_inicio.strftime('%d/%m/%Y a las %H:%M')} "
-                            f"para el vehículo con patente {reserva.patente}.\n\n"
-                            "Gracias por preferirnos."
-                        ),
-                        'no-reply@vasquezgaraje.cl',
-                        [cliente.correo_cliente],
-                        fail_silently=True,
-                    )
-                    messages.success(request, 'Reserva realizada exitosamente. Se ha enviado un correo de confirmación.')
-                    return redirect('perfil_usuario')
     else:
-        form = ReservaForm()
-        form.fields['vehiculo'].queryset = vehiculos
-        form.fields['servicio'].queryset = servicios
+        form = ReservaForm(
+            initial={
+                'fecha_reserva': min_local.date(),
+                'hora_reserva': min_local.strftime('%H:%M'),
+            }
+        )
 
-    horarios_ocupados = [
-        {
-            'inicio': r.fecha_hora_inicio.strftime('%Y-%m-%dT%H:%M'),
-            'fin': (r.fecha_hora_inicio + timedelta(hours=2, minutes=30)).strftime('%Y-%m-%dT%H:%M'),
-        }
-        for r in reservas_existentes
-    ]
+    form.fields['servicio'].queryset = servicios
+    form.fields['servicio'].empty_label = 'Selecciona un servicio'
+    _configurar_widget_fecha(form, min_datetime_str)
 
-    hoy = datetime.now().strftime('%Y-%m-%d')
-    min_datetime = f"{hoy}T10:00"
-    max_datetime = f"{hoy}T18:30"
+    def _add_slot_error(message, include_date=False):
+        if include_date:
+            form.add_error('fecha_reserva', message)
+        form.add_error('hora_reserva', message)
+        form.add_error('fecha_hora_inicio', message)
+
+    if request.method == 'POST' and form.is_valid():
+        cliente = Cliente.objects.get(pk=cliente_id)
+        descripcion = form.cleaned_data.get('vehiculo_texto')
+        patente = form.cleaned_data.get('patente')
+
+        try:
+            vehiculo = _obtener_o_crear_vehiculo(cliente, descripcion, patente)
+        except ValueError as error:
+            form.add_error('patente', error)
+        else:
+            reserva = form.save(commit=False)
+            reserva.usuario = cliente
+            reserva.vehiculo = vehiculo
+            reserva.patente = vehiculo.patente
+            reserva.estado_reserva = 'Pendiente'
+
+            inicio_aware = _asegurar_aware(reserva.fecha_hora_inicio)
+            inicio_local = timezone.localtime(inicio_aware)
+
+            if inicio_local < min_datetime_obj:
+                _add_slot_error('No puedes agendar en un horario anterior al disponible.', include_date=True)
+            elif not _es_intervalo_media_hora(inicio_local):
+                _add_slot_error('Selecciona horarios en bloques de 30 minutos.')
+            else:
+                hora_inicio = inicio_local.time()
+                if not (HORARIO_APERTURA <= hora_inicio <= HORARIO_CIERRE):
+                    _add_slot_error('El horario de reservas es entre 10:00 y 18:30.')
+                else:
+                    nueva_fin = inicio_aware + RESERVA_DURACION
+                    solapada = False
+                    for r in reservas_existentes:
+                        inicio_existente = _asegurar_aware(r.fecha_hora_inicio)
+                        fin_existente = inicio_existente + RESERVA_DURACION
+                        if inicio_aware < fin_existente and nueva_fin > inicio_existente:
+                            solapada = True
+                            break
+
+                    if solapada:
+                        _add_slot_error('Ya existe una reserva en ese horario o se solapa con otra. Elige otro horario.')
+                    else:
+                        reserva.fecha_hora_inicio = inicio_aware
+                        reserva.save()
+                        send_mail(
+                            'Confirmación de Reserva - Vasquez Garaje',
+                            (
+                                f"Estimado/a {cliente.nombre_cliente},\n\n"
+                                "Su reserva ha sido registrada para el día "
+                                f"{inicio_local.strftime('%d/%m/%Y a las %H:%M')} "
+                                f"para el vehículo con patente {reserva.patente}.\n\n"
+                                "Gracias por preferirnos."
+                            ),
+                            'no-reply@vasquezgaraje.cl',
+                            [cliente.correo_cliente],
+                            fail_silently=True,
+                        )
+                        messages.success(request, 'Reserva realizada exitosamente. Se ha enviado un correo de confirmación.')
+                        return redirect('ver_perfil')
+
+    reservas_agendadas = []
+    reservas_eventos = []
+    reservas_futuras = reservas_existentes.filter(fecha_hora_inicio__gte=timezone.now()).order_by(
+        'fecha_hora_inicio'
+    )
+
+    for r in reservas_futuras:
+        inicio_local = timezone.localtime(_asegurar_aware(r.fecha_hora_inicio))
+        fin_local = inicio_local + RESERVA_DURACION
+        servicio_nombre = getattr(r.servicio, 'nombre_servicio', str(r.servicio))
+        vehiculo_patente = getattr(r.vehiculo, 'patente', str(r.vehiculo))
+        es_propia = r.usuario_id == cliente_id
+        reservas_agendadas.append(
+            {
+                'fecha': inicio_local,
+                'fecha_label': date_format(inicio_local, "l d \d\e F"),
+                'hora_inicio': inicio_local.strftime('%H:%M'),
+                'hora_fin': fin_local.strftime('%H:%M'),
+                'servicio': servicio_nombre,
+                'vehiculo': vehiculo_patente,
+                'estado': r.estado_reserva,
+                'es_propia': es_propia,
+            }
+        )
+        reservas_eventos.append(
+            {
+                'title': 'Reservado',
+                'start': inicio_local.isoformat(),
+                'end': fin_local.isoformat(),
+                'extendedProps': {
+                    'estado': r.estado_reserva,
+                    'servicio': servicio_nombre,
+                    'vehiculo': vehiculo_patente,
+                    'esPropia': es_propia,
+                },
+            }
+        )
 
     return render(
         request,
         'agendar_servicio.html',
         {
             'form': form,
-            'horarios_ocupados': horarios_ocupados,
-            'vehiculos': vehiculos,
             'servicios': servicios,
-            'min_datetime': min_datetime,
-            'max_datetime': max_datetime,
+            'reservas_agendadas': reservas_agendadas,
+            'reservas_eventos_json': json.dumps(reservas_eventos, ensure_ascii=False),
         },
     )
 
@@ -595,14 +891,33 @@ def perfil_usuario(request):
         return redirect('login')
 
     cliente_id = request.session['cliente_id']
+    cliente = get_object_or_404(Cliente, pk=cliente_id)
     vehiculos = Vehiculo.objects.filter(usuario_id=cliente_id)
-    reservas = Reserva.objects.filter(vehiculo__in=vehiculos).select_related('servicio', 'vehiculo')
+    reservas = (
+        Reserva.objects.filter(usuario_id=cliente_id)
+        .select_related('servicio', 'vehiculo')
+        .order_by('-fecha_hora_inicio')
+    )
+    reservas_totales = reservas.count()
+    reservas_activas = reservas.exclude(estado_reserva='Cancelado').count()
+    vehiculos_totales = vehiculos.count()
+    proxima_reserva = (
+        reservas.exclude(estado_reserva='Cancelado')
+        .filter(fecha_hora_inicio__gte=timezone.now())
+        .order_by('fecha_hora_inicio')
+        .first()
+    )
 
     return render(
         request,
         'perfil_usuario.html',
         {
+            'cliente': cliente,
             'reservas': reservas,
             'vehiculos': vehiculos,
+            'reservas_totales': reservas_totales,
+            'reservas_activas': reservas_activas,
+            'vehiculos_totales': vehiculos_totales,
+            'proxima_reserva': proxima_reserva,
         },
     )

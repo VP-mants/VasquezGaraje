@@ -47,6 +47,89 @@
 .btn-danger {
     background: #d32f2f;
 }
+
+.btn.btn-secundario {
+    background: #ffffff;
+    color: #005A9C;
+    border: 1px solid rgba(0, 90, 156, 0.3);
+}
+
+.btn.btn-secundario:hover {
+    background: #e2e8f0;
+}
+
+.admin-form-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0, 48, 100, 0.12);
+    padding: 28px 32px;
+    margin-top: 24px;
+}
+
+.admin-form-card__title {
+    margin-bottom: 12px;
+    color: var(--color-primario);
+}
+
+.admin-form-card__meta {
+    margin: 0 0 12px;
+    color: #4b5a6b;
+    font-size: 0.95rem;
+}
+
+.reservation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.reservation-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reservation-form label {
+    font-weight: 600;
+    color: #1f3b58;
+}
+
+.reservation-form input,
+.reservation-form select,
+.reservation-form textarea {
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: #f9fbff;
+    color: #0f2e52;
+}
+
+.reservation-form textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.reservation-form input:focus,
+.reservation-form select:focus,
+.reservation-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.18);
+}
+
+.reservation-form .form-submit {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.table-actions {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+}
 .filter-form {
     margin-bottom: 18px;
 }
@@ -99,4 +182,134 @@
     background: #005A9C;
     color: #fff;
     border-color: #005A9C;
+}
+
+.admin-header {
+    margin-bottom: 20px;
+}
+
+.admin-header h1 {
+    margin-bottom: 6px;
+    color: var(--color-primario);
+}
+
+.admin-header p {
+    margin: 0;
+    color: #607d8b;
+}
+
+.admin-summary-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    margin: 24px 0 28px;
+}
+
+.admin-summary-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-summary-card span {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #607d8b;
+}
+
+.admin-summary-card strong {
+    font-size: 1.6rem;
+    color: var(--color-primario);
+}
+
+.admin-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.admin-filter__group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-filter label {
+    font-weight: 600;
+    color: #1f3b58;
+}
+
+.admin-filter select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    font-size: 0.95rem;
+}
+
+.admin-filter .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.admin-filter__info {
+    font-size: 0.9rem;
+    color: #4b5a6b;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.admin-empty {
+    padding: 20px;
+    text-align: center;
+    border: 1px dashed #b0bec5;
+    border-radius: 10px;
+    color: #607d8b;
+    background: #f7fafd;
+}
+
+.admin-client-list {
+    margin-top: 28px;
+}
+
+.admin-client-list h3 {
+    color: var(--color-primario);
+    margin-bottom: 12px;
+}
+
+.admin-client-cards {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.admin-client-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 16px 18px;
+}
+
+.admin-client-card strong {
+    display: block;
+    color: #0f2e52;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+}
+
+.admin-client-card span {
+    display: block;
+    font-size: 0.9rem;
+    color: #4b5a6b;
 }

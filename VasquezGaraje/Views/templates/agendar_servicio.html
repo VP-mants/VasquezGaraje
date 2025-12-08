@@ -4,37 +4,190 @@
 {% block title %}Agendar Servicio - Vasquez Garaje{% endblock %}
 
 {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/login_styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/reserva_styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css">
 {% endblock %}
 
 {% block content %}
-<div class="container" style="padding: 40px 20px;">
-    <div class="form-container" style="background:white; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-        <h2 style="color: var(--color-primario); text-align:center;">Agendar un Nuevo Servicio</h2>
-        <p style="text-align:center; margin-bottom:20px;">Completa los datos para reservar tu cita.</p>
+<section class="form-page-embedded">
+    <div class="card-container card-container--wide">
+        <div class="card-header">
+            <h1 class="card-title">Agendar un Nuevo Servicio</h1>
+            <p class="card-subtitle">Completa los datos para reservar tu cita.</p>
+        </div>
 
-        <form method="POST" class="reservation-form">
+        <form method="post" class="form-layout">
             {% csrf_token %}
-            
-            {% for field in form %}
+            {{ form.fecha_hora_inicio }}
+
+            {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors|striptags }}</div>
+            {% endif %}
+
             <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <div class="field-errors" style="color:red; font-size:0.85rem;">{{ field.errors }}</div>
+                <label for="{{ form.vehiculo_texto.id_for_label }}">{{ form.vehiculo_texto.label }}</label>
+                {{ form.vehiculo_texto }}
+                {% if form.vehiculo_texto.errors %}
+                    <div class="field-error">{{ form.vehiculo_texto.errors|striptags }}</div>
                 {% endif %}
             </div>
-            {% endfor %}
 
-            <div class="form-submit" style="text-align:center; margin-top:20px;">
-                <button type="submit" class="btn btn-primario">Confirmar Reserva</button>
+            <div class="form-group">
+                <label for="{{ form.servicio.id_for_label }}">{{ form.servicio.label }}</label>
+                {{ form.servicio }}
+                {% if form.servicio.errors %}
+                    <div class="field-error">{{ form.servicio.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.fecha_reserva.id_for_label }}">{{ form.fecha_reserva.label }}</label>
+                    {{ form.fecha_reserva }}
+                    <span class="help-text">Selecciona el día que prefieras.</span>
+                    {% if form.fecha_reserva.errors %}
+                        <div class="field-error">{{ form.fecha_reserva.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.hora_reserva.id_for_label }}">{{ form.hora_reserva.label }}</label>
+                    {{ form.hora_reserva }}
+                    <span class="help-text">Bloques de 90 minutos entre 10:00 y 18:30.</span>
+                    {% if form.hora_reserva.errors %}
+                        <div class="field-error">{{ form.hora_reserva.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.direccion_reserva.id_for_label }}">{{ form.direccion_reserva.label }}</label>
+                {{ form.direccion_reserva }}
+                {% if form.direccion_reserva.errors %}
+                    <div class="field-error">{{ form.direccion_reserva.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.comuna_reserva.id_for_label }}">{{ form.comuna_reserva.label }}</label>
+                {{ form.comuna_reserva }}
+                {% if form.comuna_reserva.errors %}
+                    <div class="field-error">{{ form.comuna_reserva.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.patente.id_for_label }}">{{ form.patente.label }}</label>
+                {{ form.patente }}
+                {% if form.patente.errors %}
+                    <div class="field-error">{{ form.patente.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.notas_cliente.id_for_label }}">{{ form.notas_cliente.label }}</label>
+                {{ form.notas_cliente }}
+                {% if form.notas_cliente.errors %}
+                    <div class="field-error">{{ form.notas_cliente.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Confirmar Reserva</button>
             </div>
         </form>
     </div>
 
-    <div class="calendar-section" style="margin-top: 40px;">
-        <h3>Disponibilidad Semanal</h3>
-        <div id="calendar"></div>
+    <div class="card-container card-container--wide calendar-card">
+        <div class="card-header">
+            <h2 class="card-title">Calendario de Reservas</h2>
+            <p class="card-subtitle">Revisa los bloques ya comprometidos antes de escoger tu horario.</p>
         </div>
-</div>
+        <div id="reservaCalendar" class="calendar-holder"></div>
+        <p id="calendarEmptyMessage" class="calendar-empty" {% if reservas_agendadas %}style="display:none;"{% endif %}>Aún no hay reservas registradas. ¡Aprovecha los primeros horarios!</p>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('reservaCalendar');
+        if (!calendarEl) {
+            return;
+        }
+
+        var reservasData;
+        try {
+            reservasData = JSON.parse('{{ reservas_eventos_json|default:"[]"|escapejs }}');
+        } catch (error) {
+            reservasData = [];
+        }
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            height: 'auto',
+            initialView: 'timeGridWeek',
+            locale: 'es',
+            firstDay: 1,
+            slotDuration: '00:30:00',
+            slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+            slotMinTime: '10:00:00',
+            slotMaxTime: '20:00:00',
+            nowIndicator: true,
+            allDaySlot: false,
+            expandRows: true,
+            scrollTime: '10:00:00',
+            businessHours: {
+                daysOfWeek: [1, 2, 3, 4, 5, 6],
+                startTime: '10:00',
+                endTime: '18:30'
+            },
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'timeGridWeek,timeGridDay'
+            },
+            buttonText: {
+                today: 'Hoy',
+                week: 'Semana',
+                day: 'Día'
+            },
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+            timeZone: 'local',
+            events: reservasData,
+            eventColor: 'transparent',
+            eventBorderColor: 'transparent',
+            eventContent: function (arg) {
+                var props = arg.event.extendedProps || {};
+                var esPropia = Boolean(props.esPropia);
+                var texto = esPropia ? 'Tu reserva' : 'Reservado';
+                return { html: '<span class="calendar-slot-label">' + texto + '</span>' };
+            },
+            eventDidMount: function (info) {
+                var props = info.event.extendedProps || {};
+                var esPropia = Boolean(props.esPropia);
+                var detalle = props.servicio ? props.servicio : info.event.title;
+                if (props.vehiculo) {
+                    detalle += ' · ' + props.vehiculo;
+                }
+                if (props.estado) {
+                    detalle += ' (' + props.estado + ')';
+                }
+                var baseColor = esPropia ? 'rgba(33, 42, 62, 0.85)' : 'rgba(33, 42, 62, 0.4)';
+                info.el.style.backgroundColor = baseColor;
+                info.el.style.borderColor = baseColor;
+                info.el.classList.toggle('calendar-event-own', esPropia);
+                info.el.classList.toggle('calendar-event-other', !esPropia);
+                var prefijo = esPropia ? 'Tu reserva: ' : 'Reservado: ';
+                info.el.setAttribute('title', prefijo + detalle);
+            }
+        });
+
+        calendar.render();
+
+        var emptyMessage = document.getElementById('calendarEmptyMessage');
+        if (emptyMessage) {
+            emptyMessage.style.display = reservasData.length ? 'none' : 'block';
+        }
+    });
+</script>
 {% endblock %}

@@ -2,70 +2,127 @@
 {% extends 'home.html' %}
 {% load static %}
 
-{% block title %}Admin Dashboard - Vasquez Garaje{% endblock %}
+{% block title %}Gestión de Reservas - Vasquez Garaje{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container" style="padding: 40px 20px;">
-    <h1 style="margin-bottom:20px; color:var(--color-primario);">Gestión de Reservas</h1>
-    <nav class="admin-subnav">
-        <span class="admin-subnav__identity">Administrador: {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
-        <div class="admin-subnav__links">
-            <a href="{% url 'admin_perfil' %}">Perfil</a>
-            <a href="{% url 'admin_dashboard' %}" class="active">Reservas</a>
-            <a href="{% url 'admin_inventario' %}">Inventario</a>
-            <a href="{% url 'admin_usuarios' %}">Usuarios</a>
-        </div>
-    </nav>
-    
-    <div class="main-content" style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-        <div class="admin-tabs" style="margin-bottom:20px;">
-            <button class="tab-btn btn btn-primario" onclick="showTab('reservas')">Reservas</button>
-            <button class="tab-btn btn btn-primario" onclick="showTab('inventario')">Inventario</button>
-        </div>
+    <div class="main-content">
+        <header class="admin-header">
+            <h1>Gestión de Reservas</h1>
+            <p>Monitoriza las reservas, revisa el estado de cada cliente y gestiona las citas activas.</p>
+        </header>
 
-        <section id="tab-reservas">
-            <h2>Gestión de Reservas</h2>
-            <div style="overflow-x:auto; margin-top:20px;">
-                <table class="table" style="width:100%; border-collapse:collapse;">
+        <nav class="admin-subnav">
+            <span class="admin-subnav__identity">Administrador: {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
+            <div class="admin-subnav__links">
+                <a href="{% url 'admin_perfil' %}">Perfil</a>
+                <a href="{% url 'admin_dashboard' %}" class="active">Reservas</a>
+                <a href="{% url 'admin_inventario' %}">Inventario</a>
+                <a href="{% url 'admin_usuarios' %}">Usuarios</a>
+            </div>
+        </nav>
+
+        <section class="admin-summary-grid">
+            <article class="admin-summary-card">
+                <span>Reservas mes actual</span>
+                <strong>{{ total_reservas_mes }}</strong>
+            </article>
+            <article class="admin-summary-card">
+                <span>Ingresos estimados (mes)</span>
+                <strong>${{ ingresos_estimados_mes|floatformat:0 }}</strong>
+            </article>
+            <article class="admin-summary-card">
+                <span>Clientes nuevos (mes)</span>
+                <strong>{{ pastel_clientes.nuevos }}</strong>
+            </article>
+            <article class="admin-summary-card">
+                <span>Clientes recurrentes (mes)</span>
+                <strong>{{ pastel_clientes.antiguos }}</strong>
+            </article>
+        </section>
+
+        <section class="admin-reservas">
+            <header class="admin-filter">
+                <form method="get" class="admin-filter__group">
+                    <label for="estado">Filtrar por estado</label>
+                    <select id="estado" name="estado">
+                        <option value="">Todos</option>
+                        {% for valor, etiqueta in estado_opciones %}
+                            <option value="{{ valor }}" {% if filtro_estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primario">Aplicar</button>
+                    {% if filtro_estado %}
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-secundario">Limpiar</a>
+                    {% endif %}
+                </form>
+                <div class="admin-filter__info">
+                    Mostrando {{ reservas_total }} reserva{% if reservas_total != 1 %}s{% endif %}
+                </div>
+            </header>
+
+            {% if reservas_total %}
+            <div class="table-responsive">
+                <table class="table">
                     <thead>
-                        <tr style="background:#005A9C; color:white;">
-                            <th style="padding:12px;">ID</th>
-                            <th style="padding:12px;">Cliente</th>
-                            <th style="padding:12px;">Fecha</th>
-                            <th style="padding:12px;">Estado</th>
-                            <th style="padding:12px;">Acción</th>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Vehículo</th>
+                            <th>Servicio</th>
+                            <th>Inicio</th>
+                            <th>Término</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for reserva in reservas %}
-                        <tr style="border-bottom:1px solid #eee;">
-                            <td style="padding:12px;">#{{ reserva.reserva_id }}</td>
-                            <td style="padding:12px;">{{ reserva.usuario.first_name }} {{ reserva.usuario.last_name }}</td>
-                            <td style="padding:12px;">{{ reserva.fecha_hora_inicio|date:'d/m H:i' }}</td>
-                            <td style="padding:12px;">{{ reserva.estado_reserva }}</td>
-                            <td style="padding:12px;">
-                                <a href="{% url 'admin_editar_reserva' reserva.reserva_id %}" class="btn btn-primario" style="padding:5px 10px; font-size:0.9rem;">Gestionar</a>
+                        {% for reserva in reservas_detalle %}
+                        <tr>
+                            <td>#{{ reserva.id }}</td>
+                            <td>{{ reserva.cliente_nombre }}</td>
+                            <td>{{ reserva.vehiculo }}</td>
+                            <td>{{ reserva.servicio }}</td>
+                            <td>{{ reserva.inicio|date:'d/m/Y H:i' }}</td>
+                            <td>{{ reserva.fin|date:'d/m/Y H:i' }}</td>
+                            <td>{{ reserva.estado }}</td>
+                            <td>
+                                <a href="{% url 'admin_editar_reserva' reserva.id %}" class="btn btn-primario btn-small">Gestionar</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="admin-empty">
+                No hay reservas para mostrar con el filtro seleccionado.
+            </div>
+            {% endif %}
         </section>
-        
-        <section id="tab-inventario" style="display:none;">
-            </section>
+
+        {% if clientes_resumen %}
+        <section class="admin-client-list">
+            <h3>Actividad por cliente</h3>
+            <div class="admin-client-cards">
+                {% for cliente in clientes_resumen %}
+                <div class="admin-client-card">
+                    <strong>{{ cliente.nombre }}</strong>
+                    <span>{{ cliente.total }} reserva{% if cliente.total != 1 %}s{% endif %} registradas</span>
+                    {% if cliente.ultima_inicio %}
+                    <span>Última atención: {{ cliente.ultima_inicio|date:'d/m/Y H:i' }} - {{ cliente.ultima_fin|date:'H:i' }}</span>
+                    {% else %}
+                    <span>Sin historial disponible.</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
     </div>
 </div>
-
-<script>
-    function showTab(tabId) {
-        document.getElementById('tab-reservas').style.display = (tabId === 'reservas') ? 'block' : 'none';
-        document.getElementById('tab-inventario').style.display = (tabId === 'inventario') ? 'block' : 'none';
-    }
-</script>
 {% endblock %}

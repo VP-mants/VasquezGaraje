@@ -5,32 +5,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Contraseña - VasquezGaraje</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/login_styles.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="auth-wrapper">
-        <div class="auth-container">
-            <div class="auth-image-panel">
-                <h2>No te preocupes. Te ayudamos a recuperar tu acceso.</h2>
-            </div>
-            <div class="auth-form-panel">
-                <h1>Recuperar Contraseña</h1>
-                <p class="subtitulo">Ingresa tu correo y te enviaremos un código de recuperación.</p>
-                <form>
+<body class="auth-body">
+    <section class="form-page">
+        <div class="card-layout">
+            <aside class="card-media">
+                <img src="{% static 'images/logo.jpg' %}" alt="Vasquez Garage" class="card-logo">
+                <p class="card-tagline">Recupera tu acceso en minutos y continúa disfrutando de tu auto sin preocupaciones.</p>
+            </aside>
+            <div class="card-panel">
+                <div class="card-header">
+                    <h1 class="card-title">Recuperar Contraseña</h1>
+                    <p class="card-subtitle">Ingresa tu correo y te enviaremos un código de recuperación.</p>
+                </div>
+
+                <form method="post" class="form-layout">
+                    {% csrf_token %}
                     <div class="form-group">
-                        <label for="email">Correo electrónico asociado a la cuenta</label>
-                        <input type="email" id="email" placeholder="ejemplo@dominio.com" required>
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" id="email" name="email" placeholder="ejemplo@dominio.com" required>
                     </div>
-                    <button type="submit" class="btn btn-primario" style="width: 100%;">Enviar Código</button>
-                    <div class="auth-form-links">
-                        <a href="{% url 'login' %}">Volver a Iniciar Sesión</a>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Enviar Código</button>
                     </div>
                 </form>
+
+                <div class="form-note">
+                    <span>¿Recordaste tu contraseña?</span>
+                    <a href="{% url 'login' %}">Volver a iniciar sesión</a>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 </body>
 </html>

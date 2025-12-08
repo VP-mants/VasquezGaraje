@@ -1,131 +1,124 @@
-.form-container {
-    max-width: 700px; /* Limita el ancho para mejor legibilidad */
-    margin: 2rem auto; /* Centra el formulario en la página */
+.form-page-embedded {
+    background: var(--auth-bg);
 }
 
-.form-container h2 {
-    text-align: center;
-    color: #0056b3; /* Coherente con otros títulos */
+.card-container--wide {
+    width: min(100%, 780px);
 }
 
-.form-container p {
-    text-align: center;
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 2.5rem;
+.card-container--wide .form-actions {
+    display: flex;
+    justify-content: flex-end;
 }
 
-/* --- Grupos de Campos --- */
-.form-group {
-    margin-bottom: 1.75rem;
+.card-container--wide .btn-primary {
+    width: auto;
+    padding: 0 28px;
 }
 
-/* --- Etiquetas (Labels) --- */
-.form-group label {
-    display: block;
-    font-weight: bold;
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-
-/* --- Estilo de Inputs, Selects y Textareas --- */
-/* Esto estilizará automáticamente todos los campos 
-  que Django genere (inputs, selects, textareas).
-*/
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="datetime-local"],
-.form-group input[type="date"],
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box; /* Clave para que padding no rompa el ancho */
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.form-group textarea {
-    min-height: 140px;
-    resize: vertical;
-}
-
-/* --- Efecto Focus (al hacer clic) --- */
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #0056b3;
-    box-shadow: 0 0 5px rgba(0,86,179,0.3);
-}
-
-/* --- Mensajes de Ayuda y Error --- */
 .help-text {
-    display: block;
     font-size: 0.9rem;
-    color: #666;
-    margin-top: 0.4rem;
+    color: var(--auth-muted);
 }
 
-.field-errors {
-    color: #dc3545; /* Rojo de error */
-    font-size: 0.9rem;
-    font-weight: bold;
-    margin-top: 0.4rem;
+.calendar-card {
+    gap: 18px;
 }
 
-/* --- Botón de Envío --- */
-.form-submit {
-    margin-top: 2.5rem;
-    text-align: right;
+.calendar-holder {
+    border: 1px solid #dbe2eb;
+    border-radius: 12px;
+    padding: 18px;
+    background: #ffffff;
+    box-shadow: 0 18px 40px rgba(13, 76, 146, 0.08);
+    min-height: 520px;
 }
 
-/* El botón usará el estilo 'btn-primary' 
-  que ya deberías tener en tu 'styles.css'
-*/
-.form-submit .btn-primary {
-    padding: 0.8rem 1.8rem;
+.calendar-holder .fc {
+    font-family: 'Inter', sans-serif;
+    color: var(--auth-text);
+}
+
+.calendar-holder .fc-view-harness {
+    min-height: 460px;
+}
+
+.calendar-holder .fc-toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.calendar-holder .fc-toolbar-title {
     font-size: 1.1rem;
+    color: var(--auth-accent);
 }
 
-/* --- Selects de Vehículo y Tipo de Servicio --- */
-.form-group select {
-    background: #fff !important;
-    color: #222;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    cursor: pointer;
+.calendar-holder .fc-button-primary {
+    background: var(--auth-accent);
+    border: none;
+    border-radius: 8px;
+    box-shadow: none;
+    transition: background 0.2s ease;
 }
 
-/* Caja de entrada personalizada para selects y campos de texto */
-.input-box {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-    background: #fff;
-    color: #222;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+.calendar-holder .fc-button-primary:not(:disabled):hover {
+    background: var(--auth-accent-dark);
 }
 
-.input-box:focus {
-    outline: none;
-    border-color: #0056b3;
-    box-shadow: 0 0 5px rgba(0,86,179,0.3);
+.calendar-holder .fc-daygrid-day-number,
+.calendar-holder .fc-col-header-cell-cushion {
+    color: var(--auth-text);
 }
 
-/* Mejorar visualización de selects */
-.input-box option {
-    color: #222;
-    background: #fff;
+.calendar-holder .fc-event {
+    border: none;
+    border-radius: 8px;
+    padding: 4px 6px;
+    background: rgba(33, 42, 62, 0.55);
+    color: #ffffff;
+}
+
+.calendar-holder .fc-event.calendar-event-other {
+    background: rgba(33, 42, 62, 0.4);
+    color: #ffffff;
+}
+
+.calendar-holder .fc-event.calendar-event-own {
+    background: rgba(33, 42, 62, 0.85);
+    color: #ffffff;
+}
+
+.calendar-holder .calendar-slot-label {
+    display: block;
+    font-weight: 600;
+    text-align: center;
+    color: #ffffff;
+}
+
+.calendar-holder .fc-timegrid-slot-label {
+    color: #4b5563;
+}
+
+.calendar-holder .fc-now-indicator-line {
+    border-color: #f97316;
+}
+
+.calendar-holder .fc-now-indicator-arrow {
+    border-top-color: #f97316;
+}
+
+.calendar-holder .fc-scrollgrid {
+    border: none;
+}
+
+.calendar-holder .fc-scrollgrid-section > * {
+    border: none;
+}
+
+.calendar-empty {
+    margin: 16px 0 0;
+    color: #4b5563;
+    font-size: 0.95rem;
+    text-align: center;
 }

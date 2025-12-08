@@ -5,38 +5,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - VasquezGaraje</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/login_styles.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="auth-wrapper">
-        <div class="auth-container">
-            <div class="auth-image-panel">
-                <h2>Mantenimiento Profesional de Vehículos a Domicilio.</h2>
-            </div>
-            <div class="auth-form-panel">
-                <h2>Bienvenido</h2>
-                <p class="subtitulo">Inicia sesión para continuar.</p>
+<body class="auth-body">
+    <section class="form-page">
+        <div class="card-layout">
+            <aside class="card-media">
+                <img src="{% static 'images/logo.jpg' %}" alt="Vasquez Garage" class="card-logo">
+                <p class="card-tagline">Atención a domicilio con agenda flexible, diagnósticos confiables y mecánicos certificados.</p>
+            </aside>
+            <div class="card-panel">
+                <div class="card-header">
+                    <h1 class="card-title">Iniciar Sesión</h1>
+                    <p class="card-subtitle">Ingresa tus credenciales para continuar.</p>
+                </div>
+
                 {% if messages %}
-                    <ul class="form-errors">
+                    <div class="alert-stack">
                         {% for message in messages %}
-                            <li>{{ message }}</li>
+                            <div class="alert alert-{{ message.tags|default:'info'|slugify }}">
+                                {{ message }}
+                            </div>
                         {% endfor %}
-                    </ul>
+                    </div>
                 {% endif %}
-                <form method="post">
+
+                {% if form.non_field_errors %}
+                    <div class="alert-stack">
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post" class="form-layout">
                     {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primario" style="width: 100%;">Iniciar Sesión</button>
-                    <div class="auth-form-links">
-                        <a href="{% url 'recuperar_contraseña' %}">¿Olvidaste tu contraseña?</a>
-                        <a href="{% url 'registro' %}">¿No tienes cuenta? Regístrate</a>
+                    <div class="form-group">
+                        <label for="{{ form.correo_cliente.id_for_label }}">{{ form.correo_cliente.label }}</label>
+                        {{ form.correo_cliente }}
+                        {% if form.correo_cliente.errors %}
+                            <div class="field-error">{{ form.correo_cliente.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.contraseña_cliente.id_for_label }}">{{ form.contraseña_cliente.label }}</label>
+                        {{ form.contraseña_cliente }}
+                        {% if form.contraseña_cliente.errors %}
+                            <div class="field-error">{{ form.contraseña_cliente.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Ingresar</button>
                     </div>
                 </form>
+
+                <div class="form-links">
+                    <a href="{% url 'recuperar_contraseña' %}">¿Olvidaste tu contraseña?</a>
+                    <a href="{% url 'registro' %}">¿No tienes cuenta? Regístrate</a>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 </body>
 </html>

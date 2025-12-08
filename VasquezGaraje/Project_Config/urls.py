@@ -17,6 +17,7 @@ urlpatterns = [
     path('agendar_servicio/', views.agendar_servicio, name='agendar_servicio'),
     path('perfil/', views.perfil_usuario, name='ver_perfil'),
     path('perfil/editar/', views.editar_perfil, name='editar_perfil'),
+    path('perfil/cambiar-contrasena/', views.cambiar_contrasena, name='cambiar_contrasena'),
     path('reserva/editar/<int:id>/', views.editar_reserva, name='editar_reserva'),
     path('reserva/cancelar/<int:id>/', views.cancelar_reserva, name='cancelar_reserva'),
     path('panel/perfil/', views.admin_perfil, name='admin_perfil'),

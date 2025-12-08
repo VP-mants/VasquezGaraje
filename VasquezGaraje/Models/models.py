@@ -45,15 +45,35 @@ class Vehiculo(models.Model):
 		db_table = 'VEHICULO'
 		managed = False
 
+	def __str__(self):
+		if self.marca and self.modelo:
+			return f"{self.patente} - {self.marca} {self.modelo}"
+		if self.marca:
+			return f"{self.patente} - {self.marca}"
+		return self.patente
+
 class Servicio(models.Model):
+	CATEGORIA_CONSULTA = 'consulta'
+	CATEGORIA_REPARACION = 'reparacion_especifica'
+	CATEGORIA_OTROS = 'otros'
+	CATEGORIA_CHOICES = [
+		(CATEGORIA_CONSULTA, 'Consulta'),
+		(CATEGORIA_REPARACION, 'Reparación Específica'),
+		(CATEGORIA_OTROS, 'Otros (agrega detalles en comentarios)'),
+	]
 	servicio_id = models.AutoField(primary_key=True)
 	nombre_servicio = models.CharField(max_length=100)
 	descripcion_servicio = models.TextField()
 	duracion_servicio = models.IntegerField()
+	categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, default=CATEGORIA_OTROS)
 
 	class Meta:
 		db_table = 'SERVICIO'
 		managed = False
+
+	def __str__(self):
+		categoria = dict(self.CATEGORIA_CHOICES).get(self.categoria, 'Servicio')
+		return f"{categoria} · {self.nombre_servicio}"
 
 
 class Reserva(models.Model):

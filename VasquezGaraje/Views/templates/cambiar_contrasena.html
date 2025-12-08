@@ -1,0 +1,44 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/perfil_styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <div class="profile-section">
+        <h1>Cambiar Contraseña</h1>
+        <p class="profile-section__subtitle">Mantén tu cuenta protegida actualizando periódicamente tu contraseña.</p>
+        <form method="post" class="profile-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-group">
+                <label for="id_contrasena_actual">Contraseña actual</label>
+                {{ form.contrasena_actual }}
+                {% if form.contrasena_actual.errors %}
+                <div class="field-error">{{ form.contrasena_actual.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="id_nueva_contrasena">Nueva contraseña</label>
+                {{ form.nueva_contrasena }}
+                {% if form.nueva_contrasena.errors %}
+                <div class="field-error">{{ form.nueva_contrasena.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="id_confirmar_contrasena">Confirmar contraseña</label>
+                {{ form.confirmar_contrasena }}
+                {% if form.confirmar_contrasena.errors %}
+                <div class="field-error">{{ form.confirmar_contrasena.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="form-submit">
+                <button type="submit" class="btn btn-primario">Guardar nueva contraseña</button>
+                <a href="{% url 'ver_perfil' %}" class="btn btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -8,33 +8,277 @@
 {% block content %}
 <div class="dashboard-layout">
     <div class="main-content">
-        <h1>Mis Reservas</h1>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Fecha y Hora</th>
-                    <th>Vehículo</th>
-                    <th>Servicio</th>
-                    <th>Dirección</th>
-                    <th>Comuna</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for reserva in reservas %}
-                <tr>
-                    <td>{{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</td>
-                    <td>{{ reserva.vehiculo.patente }} ({{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }})</td>
-                    <td>{{ reserva.servicio.nombre_servicio }}</td>
-                    <td>{{ reserva.direccion_reserva }}</td>
-                    <td>{{ reserva.comuna_reserva }}</td>
-                    <td>{{ reserva.estado_reserva }}</td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="6">No tienes reservas registradas.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <section class="profile-overview">
+            <div class="profile-card">
+                <div class="profile-card__header">
+                    <h1>Mi Perfil</h1>
+                    <p class="profile-card__subtitle">Información esencial de tu cuenta personal.</p>
+                </div>
+                <dl class="profile-details">
+                    <div class="profile-detail">
+                        <dt>Nombre completo</dt>
+                        <dd>{{ cliente.nombre_cliente }} {{ cliente.apellido_cliente }}</dd>
+                    </div>
+                    <div class="profile-detail">
+                        <dt>Correo electrónico</dt>
+                        <dd>{{ cliente.correo_cliente }}</dd>
+                    </div>
+                    <div class="profile-detail">
+                        <dt>Teléfono</dt>
+                        <dd>{{ cliente.telefono_cliente|default:'No registrado' }}</dd>
+                    </div>
+                    <div class="profile-detail">
+                        <dt>Tipo de cuenta</dt>
+                        <dd>{% if cliente.es_admin %}Administrador{% else %}Cliente{% endif %}</dd>
+                    </div>
+                </dl>
+            </div>
+            <div class="profile-metrics">
+                <div class="profile-metric">
+                    <span class="profile-metric__label">Reservas totales</span>
+                    <span class="profile-metric__value">{{ reservas_totales }}</span>
+                </div>
+                <div class="profile-metric">
+                    <span class="profile-metric__label">Reservas activas</span>
+                    <span class="profile-metric__value">{{ reservas_activas }}</span>
+                </div>
+                <div class="profile-metric">
+                    <span class="profile-metric__label">Vehículos registrados</span>
+                    <span class="profile-metric__value">{{ vehiculos_totales }}</span>
+                </div>
+                <div class="profile-metric profile-metric--wide">
+                    <span class="profile-metric__label">Próxima reserva</span>
+                    {% if proxima_reserva %}
+                        <span class="profile-metric__value">{{ proxima_reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</span>
+                        <span class="profile-metric__hint">{{ proxima_reserva.servicio.nombre_servicio }} · {{ proxima_reserva.vehiculo }}</span>
+                    {% else %}
+                        <span class="profile-metric__value profile-metric__value--muted">Sin reservas futuras</span>
+                        <span class="profile-metric__hint">Agenda un nuevo servicio cuando lo necesites.</span>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <div class="profile-actions">
+            <a href="{% url 'editar_perfil' %}" class="btn btn-primario profile-action__button">Editar perfil</a>
+            <a href="{% url 'cambiar_contrasena' %}" class="btn btn-secundario profile-action__button">Cambiar contraseña</a>
+            <a href="#misReservas" class="btn btn-secundario profile-action__button profile-action__button--outline">Ir a mis reservas</a>
+        </div>
+
+        <section id="misReservas" class="reservas-section">
+            <div class="reservas-section__header">
+                <h2>Mis Reservas</h2>
+                <p>Revisa tus reservas pasadas y próximas, o cancela aquellas que aún están pendientes.</p>
+            </div>
+            <div class="reservas-toolbar">
+                <div class="reservas-toolbar__search">
+                    <label for="reservasBuscar" class="sr-only">Buscar reservas</label>
+                    <input
+                        type="search"
+                        id="reservasBuscar"
+                        class="reservas-buscar-input"
+                        placeholder="Buscar por fecha, vehículo, servicio, dirección, comuna o estado"
+                        autocomplete="off"
+                    >
+                </div>
+                <div class="reservas-toolbar__info">
+                    <span id="reservasResultado"></span>
+                </div>
+            </div>
+            <table id="tablaReservas" class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Vehículo</th>
+                        <th>Servicio</th>
+                        <th>Dirección</th>
+                        <th>Comuna</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaReservasBody">
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td>{{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</td>
+                        <td>{{ reserva.vehiculo }}</td>
+                        <td>{{ reserva.servicio.nombre_servicio }}</td>
+                        <td>{{ reserva.direccion_reserva }}</td>
+                        <td>{{ reserva.comuna_reserva }}</td>
+                        <td>{{ reserva.estado_reserva }}</td>
+                        <td>
+                            {% if reserva.estado_reserva == 'Pendiente' or reserva.estado_reserva == 'Confirmado' %}
+                                <form method="POST" action="{% url 'cancelar_reserva' reserva.reserva_id %}" class="inline-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-secundario btn-cancelar">Cancelar</button>
+                                </form>
+                            {% else %}
+                                <span class="estado-inactivo">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr data-empty-row="true"><td colspan="7" class="tabla-empty">No tienes reservas registradas.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="reservas-pagination" id="reservasPagination"></div>
+        </section>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var searchInput = document.getElementById('reservasBuscar');
+        var tableBody = document.getElementById('tablaReservasBody');
+        var paginationContainer = document.getElementById('reservasPagination');
+        var summaryLabel = document.getElementById('reservasResultado');
+        if (!searchInput || !tableBody) {
+            return;
+        }
+
+        var allRows = tableBody.querySelectorAll('tr');
+        var dataRows = Array.prototype.filter.call(allRows, function (row) {
+            return row.getAttribute('data-empty-row') !== 'true' && row.getAttribute('data-search-empty-row') !== 'true';
+        });
+
+        var emptyRow = tableBody.querySelector('[data-empty-row="true"]');
+        var noResultsRow = null;
+        var currentPage = 1;
+        var rowsPerPage = 5;
+        var filteredRows = dataRows.slice();
+
+        if (!dataRows.length) {
+            if (summaryLabel) {
+                summaryLabel.textContent = '0 reservas';
+            }
+            if (paginationContainer) {
+                paginationContainer.style.display = 'none';
+            }
+            return;
+        }
+
+        function updateSummary(totalFiltered) {
+            if (!summaryLabel) {
+                return;
+            }
+            var total = dataRows.length;
+            if (totalFiltered === total) {
+                summaryLabel.textContent = total + (total === 1 ? ' reserva' : ' reservas');
+            } else {
+                summaryLabel.textContent = totalFiltered + ' de ' + total + ' reservas';
+            }
+        }
+
+        function toggleNoResults(show) {
+            if (!noResultsRow) {
+                noResultsRow = document.createElement('tr');
+                noResultsRow.setAttribute('data-search-empty-row', 'true');
+                noResultsRow.className = 'tabla-empty-row';
+                var cell = document.createElement('td');
+                cell.colSpan = 7;
+                cell.className = 'tabla-empty';
+                cell.textContent = 'Sin resultados para la búsqueda actual.';
+                noResultsRow.appendChild(cell);
+                tableBody.appendChild(noResultsRow);
+            }
+            noResultsRow.style.display = show ? '' : 'none';
+        }
+
+        toggleNoResults(false);
+
+        function renderPagination(totalFiltered) {
+            if (!paginationContainer) {
+                return;
+            }
+            paginationContainer.innerHTML = '';
+            if (totalFiltered <= rowsPerPage) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+            paginationContainer.style.display = 'flex';
+
+            var totalPages = Math.ceil(totalFiltered / rowsPerPage) || 1;
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+
+            function createPageButton(label, page, disabled) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = label;
+                btn.className = 'reservas-pagination__button';
+                if (disabled) {
+                    btn.disabled = true;
+                }
+                btn.addEventListener('click', function () {
+                    if (!disabled && page >= 1 && page <= totalPages) {
+                        currentPage = page;
+                        updateVisibility();
+                    }
+                });
+                return btn;
+            }
+
+            paginationContainer.appendChild(createPageButton('Anterior', currentPage - 1, currentPage === 1));
+
+            for (var page = 1; page <= totalPages; page += 1) {
+                var btn = createPageButton(page, page, false);
+                if (page === currentPage) {
+                    btn.classList.add('is-active');
+                }
+                paginationContainer.appendChild(btn);
+            }
+
+            paginationContainer.appendChild(
+                createPageButton('Siguiente', currentPage + 1, currentPage === totalPages)
+            );
+        }
+
+        function updateVisibility() {
+            var term = searchInput.value.trim().toLowerCase();
+            filteredRows = [];
+            dataRows.forEach(function (row) {
+                var haystack = row.textContent.toLowerCase();
+                var matches = !term || haystack.indexOf(term) !== -1;
+                if (matches) {
+                    filteredRows.push(row);
+                }
+            });
+
+            var totalFiltered = filteredRows.length;
+
+            dataRows.forEach(function (row) {
+                row.style.display = 'none';
+            });
+
+            var startIndex = (currentPage - 1) * rowsPerPage;
+            var endIndex = startIndex + rowsPerPage;
+
+            filteredRows.slice(startIndex, endIndex).forEach(function (row) {
+                row.style.display = '';
+            });
+
+            toggleNoResults(!totalFiltered && term.length);
+            if (emptyRow) {
+                if (term.length) {
+                    emptyRow.style.display = 'none';
+                } else {
+                    emptyRow.style.display = totalFiltered ? 'none' : '';
+                }
+            }
+
+            renderPagination(totalFiltered);
+            updateSummary(totalFiltered);
+        }
+
+        updateSummary(dataRows.length);
+        updateVisibility();
+
+        searchInput.addEventListener('input', function () {
+            currentPage = 1;
+            updateVisibility();
+        });
+    });
+</script>
 {% endblock %}

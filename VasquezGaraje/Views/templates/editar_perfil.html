@@ -1,11 +1,15 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-<link rel="stylesheet" href="{% static 'css/perfil_styles.css' %}">
 {% extends 'home.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/perfil_styles.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="dashboard-layout">
     <div class="profile-section">
         <h1>Editar Perfil</h1>
+        <p class="profile-section__subtitle">Actualiza tus datos de contacto para mantenernos comunicados contigo.</p>
         <form method="POST" class="profile-form">
             {% csrf_token %}
             {{ form.non_field_errors }}

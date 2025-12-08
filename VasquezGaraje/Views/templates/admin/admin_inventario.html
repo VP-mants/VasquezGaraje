@@ -44,7 +44,7 @@
                         <td>{{ insumo.unidad_medida }}</td>
                         <td>${{ insumo.precio_unitario }}</td>
                         <td>{{ insumo.fecha_actualizacion|date:'d/m/Y H:i' }}</td>
-                        <td>
+                        <td class="table-actions">
                             <a href="{% url 'admin_insumo_editar' insumo.insumo_id %}" class="btn btn-small">Editar</a>
                             <a href="{% url 'admin_insumo_eliminar' insumo.insumo_id %}" class="btn btn-small btn-danger">Eliminar</a>
                         </td>

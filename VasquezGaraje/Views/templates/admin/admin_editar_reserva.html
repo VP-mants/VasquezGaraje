@@ -1,7 +1,7 @@
 {% extends 'home.html' %}
 {% load static %}
 
-{% block title %}Editar Reserva (Admin) - Vasquez Garaje{% endblock %}
+{% block title %}Editar Reserva - Vasquez Garaje{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
@@ -10,7 +10,10 @@
 {% block content %}
 <div class="container" style="padding: 40px 20px;">
     <div class="main-content">
-        <h1 style="margin-bottom: 16px; color: var(--color-primario);">Editar Reserva (Admin)</h1>
+        <header class="admin-header">
+            <h1>Editar Reserva</h1>
+            <p>Actualiza el estado y los datos asociados a esta cita.</p>
+        </header>
         <nav class="admin-subnav">
             <span class="admin-subnav__identity">Administrador: {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
             <div class="admin-subnav__links">
@@ -20,6 +23,10 @@
                 <a href="{% url 'admin_usuarios' %}">Usuarios</a>
             </div>
         </nav>
+        <section class="admin-form-card">
+        <h2 class="admin-form-card__title">Datos de la reserva</h2>
+        <p class="admin-form-card__meta">Cliente: {{ reserva.usuario.nombre_cliente }} {{ reserva.usuario.apellido_cliente }} · Vehículo: {{ reserva.vehiculo.patente }}</p>
+        <p class="admin-form-card__meta">Servicio: {{ reserva.servicio.nombre_servicio }} · Inicio: {{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</p>
         <form method="POST" class="reservation-form">
             {% csrf_token %}
             {{ form.non_field_errors }}
@@ -44,6 +51,7 @@
                 <a href="{% url 'admin_dashboard' %}" class="btn btn-secundario">Cancelar</a>
             </div>
         </form>
+        </section>
     </div>
 </div>
 {% endblock %}
