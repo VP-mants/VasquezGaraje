@@ -1,0 +1,20 @@
+{% load static %}
+<div class="admin-topbar">
+    <div class="admin-topbar__brand">
+        <img src="{% static 'images/logo.jpg' %}" alt="Logo VasquezGarage" class="admin-topbar__logo">
+        <div class="admin-topbar__brand-text">
+            <span class="admin-topbar__company">VasquezGarage SPA</span>
+            <span class="admin-topbar__tagline">Panel Administrador</span>
+        </div>
+    </div>
+    <div class="admin-topbar__menu">
+        <span class="admin-topbar__welcome">Hola, {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
+        <nav class="admin-topbar__nav" aria-label="Navegación administrador">
+            <a href="{% url 'admin_perfil' %}" class="admin-topbar__link {% if active_tab == 'perfil' %}is-active{% endif %}">Perfil Admin</a>
+            <a href="{% url 'admin_dashboard' %}" class="admin-topbar__link {% if active_tab == 'reservas' %}is-active{% endif %}">Reservas</a>
+            <a href="{% url 'admin_inventario' %}" class="admin-topbar__link {% if active_tab == 'inventario' %}is-active{% endif %}">Inventario</a>
+            <a href="{% url 'admin_usuarios' %}" class="admin-topbar__link {% if active_tab == 'usuarios' %}is-active{% endif %}">Usuarios</a>
+        </nav>
+        <a href="{% url 'logout' %}" class="admin-topbar__logout">Salir</a>
+    </div>
+</div>

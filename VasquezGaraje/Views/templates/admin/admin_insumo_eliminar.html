@@ -1,9 +1,10 @@
 {% extends 'home.html' %}
 {% load static %}
 
-{% block title %}Eliminar Insumo - Vasquez Garaje{% endblock %}
+{% block title %}Eliminar Insumo - VasquezGarage SPA{% endblock %}
 
 {% block extra_css %}
+{{ block.super }}
 <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
 {% endblock %}
 
@@ -11,15 +12,7 @@
 <div class="container" style="padding: 40px 20px;">
     <div class="main-content">
         <h1 style="margin-bottom: 16px; color: var(--color-primario);">Eliminar Insumo</h1>
-        <nav class="admin-subnav" style="margin-bottom: 24px;">
-            <span class="admin-subnav__identity">Administrador: {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
-            <div class="admin-subnav__links">
-                <a href="{% url 'admin_perfil' %}">Perfil</a>
-                <a href="{% url 'admin_dashboard' %}">Reservas</a>
-                <a href="{% url 'admin_inventario' %}" class="active">Inventario</a>
-                <a href="{% url 'admin_usuarios' %}">Usuarios</a>
-            </div>
-        </nav>
+            {% include 'admin/_admin_navbar.html' with active_tab='inventario' %}
         <p>¿Estás seguro de que deseas eliminar el insumo <strong>{{ insumo.nombre }}</strong>?</p>
         <form method="POST" style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
             {% csrf_token %}

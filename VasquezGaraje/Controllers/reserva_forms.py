@@ -88,7 +88,7 @@ def ensure_servicios_predeterminados():
 
 
 RESERVA_DURACION_MINUTOS = 90
-RESERVA_SLOT_STEP_MINUTOS = 30
+RESERVA_SLOT_STEP_MINUTOS = 90
 RESERVA_HORA_INICIO = time(10, 0)
 RESERVA_HORA_FIN = time(18, 30)
 
@@ -203,8 +203,6 @@ class ReservaForm(forms.ModelForm):
             fin_str = (cursor + duracion).strftime('%H:%M')
             puntos.append((inicio_str, f"{inicio_str} - {fin_str}"))
             cursor += paso
-            if cursor > fin:
-                break
         return puntos
 
     @staticmethod

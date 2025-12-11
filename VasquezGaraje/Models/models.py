@@ -98,3 +98,24 @@ class Reserva(models.Model):
 	class Meta:
 		db_table = 'RESERVA'
 		managed = True
+
+
+class ReservaInsumo(models.Model):
+	reserva = models.ForeignKey(
+		Reserva,
+		on_delete=models.CASCADE,
+		related_name='insumos_utilizados',
+	)
+	insumo = models.ForeignKey(
+		Insumo,
+		on_delete=models.PROTECT,
+	)
+	cantidad_utilizada = models.PositiveIntegerField()
+
+	class Meta:
+		db_table = 'RESERVA_INSUMO'
+		managed = True
+		unique_together = ('reserva', 'insumo')
+
+	def __str__(self):
+		return f"{self.reserva_id} · {self.insumo.nombre} ({self.cantidad_utilizada})"

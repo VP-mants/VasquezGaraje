@@ -56,15 +56,137 @@ body {
     margin-bottom: 2rem;
 }
 
+.hero-title {
+    margin: 0;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    align-items: center;
+    text-transform: none;
+}
+
+.hero-title__primary {
+    display: block;
+    font-size: clamp(3rem, 2.2rem + 2.2vw, 4.4rem);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+}
+
+.hero-title__secondary {
+    display: block;
+    font-size: clamp(1.8rem, 1.6rem + 1.2vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+}
+
 .page-section {
     margin: 3rem 0;
     padding: 0 2rem;
 }
 
+#servicios.page-section {
+    margin-top: 2.2rem;
+    padding-top: 0.5rem;
+}
+
+.quienes-somos-panel {
+    margin: 3.5rem 0;
+    padding: 3.75rem 0 4rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(233, 244, 255, 0.94));
+    border-top: 1px solid rgba(5, 97, 165, 0.12);
+    border-bottom: 1px solid rgba(5, 97, 165, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 30px 70px rgba(8, 36, 75, 0.12);
+}
+
+.quienes-somos-panel.page-section {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.quienes-somos-panel .container {
+    max-width: 1100px;
+    padding: 0 3.5rem;
+}
+
+.quienes-somos-text {
+    max-width: 880px;
+    margin: 0 auto 2.75rem;
+    padding: 0 1rem;
+    display: grid;
+    gap: 1.65rem;
+}
+
+.quienes-somos-text p {
+    margin: 0;
+    font-size: clamp(1.12rem, 1.05rem + 0.55vw, 1.52rem);
+    line-height: 1.95;
+    text-align: center;
+    color: #163042;
+    letter-spacing: 0.012em;
+}
+
+.servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+    margin-top: 1.25rem;
+}
+
+.servicio-card {
+    background: linear-gradient(160deg, rgba(245, 249, 255, 0.95), rgba(229, 241, 255, 0.88));
+    border-radius: 22px;
+    padding: 2.35rem 2.25rem;
+    box-shadow: 0 18px 38px rgba(11, 43, 82, 0.18);
+    border: 1px solid rgba(5, 97, 165, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    min-height: 220px;
+}
+
+.servicio-card h3 {
+    font-size: clamp(1.5rem, 1.4rem + 0.4vw, 1.9rem);
+    color: #0a3760;
+    margin: 0;
+}
+
+.servicio-card p {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #1d3350;
+}
+
+.servicios-empty {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #1d3350;
+    padding: 2rem 0;
+}
+
 h2 {
-    font-size: 1.5rem;
+    font-size: clamp(1.95rem, 1.7rem + 0.8vw, 2.55rem);
     font-weight: 700;
     margin-bottom: 1rem;
+    text-align: center;
+}
+
+.page-section > .container > h2,
+.page-section > h2 {
+    text-align: center;
+}
+
+.servicios-heading {
+    letter-spacing: 0.03em;
+}
+
+#quienes-somos h2 {
+    font-size: clamp(2rem, 1.7rem + 1.1vw, 2.7rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0;
+    text-align: center;
 }
 
 #galeria .container > h2 {
@@ -172,9 +294,73 @@ h2 {
     text-align: center;
 }
 
+.cta-section .container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    align-items: center;
+}
+
+.cta-section p {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #1f2b3c;
+}
+
+.cta-floating {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 320px;
+    background: #fffbe6;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 40, 80, 0.18);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1500;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.cta-floating__title {
+    margin: 0;
+    color: #005A9C;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.cta-floating__text {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1rem;
+}
+
+.cta-floating__button {
+    align-self: flex-start;
+    background: #ffc107;
+    color: #333;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.cta-floating__button:hover {
+    background: #ffb300;
+}
+
+.cta-floating.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .cta-section h2 {
     color: #005A9C;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .cta-section .btn-primario {
@@ -183,11 +369,81 @@ h2 {
     font-weight: 700;
     border: none;
     border-radius: 6px;
-    padding: 10px 24px;
-    margin-top: 1rem;
+    padding: 10px 26px;
+    margin-top: 0.25rem;
     cursor: pointer;
     font-size: 1rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+
+
+.footer__content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 2.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.3rem;
+}
+
+
+.footer-contacts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.65rem;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.footer-contacts__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    min-height: 96px;
+    text-align: center;
+    background: linear-gradient(170deg, #f1f7ff, #dbe9ff);
+    border-radius: 18px;
+    padding: 1.05rem 1.2rem;
+    box-shadow: 0 14px 30px rgba(14, 40, 72, 0.14);
+    border: 1px solid rgba(10, 80, 150, 0.1);
+    width: clamp(220px, 28vw, 260px);
+}
+
+.footer-contacts__icon {
+    display: block;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    object-fit: contain;
+}
+
+.footer-contacts__title {
+    margin: 0;
+    font-size: clamp(1.02rem, 0.98rem + 0.28vw, 1.16rem);
+    color: #0f2f54;
+    font-weight: 700;
+}
+
+.footer-contacts__text {
+    margin: 0;
+    font-size: 0.96rem;
+    color: #284568;
+    letter-spacing: 0.012em;
+}
+
+.footer__copy {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-align: center;
+}
+
+.footer {
+    padding: 0;
 }
 
 @media (max-width: 1200px) {
@@ -203,6 +459,29 @@ h2 {
     .cta-section {
         max-width: 98vw;
     }
+
+    .quienes-somos-panel {
+        margin: 3rem 0;
+        padding: 3.2rem 0 3.45rem;
+    }
+
+    .quienes-somos-panel .container {
+        padding: 0 2rem;
+    }
+
+    .servicios-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.75rem;
+    }
+
+    .footer-contacts {
+        justify-content: center;
+        gap: 1.45rem;
+    }
+
+    .cta-floating {
+        display: none;
+    }
 }
 
 @media (max-width: 600px) {
@@ -211,11 +490,49 @@ h2 {
         gap: 1rem;
     }
     .hero-section {
-        font-size: 1.2rem;
         padding: 1.2rem 0 0.7rem 0;
+    }
+    .hero-title {
+        gap: 0.45rem;
+    }
+    .hero-title__primary {
+        letter-spacing: 0.03em;
     }
     .gallery-grid {
         grid-template-columns: 1fr;
+    }
+
+    .quienes-somos-panel {
+        margin: 2.75rem 0;
+        padding: 2.85rem 0 3.1rem;
+    }
+
+    .quienes-somos-panel .container {
+        padding: 0 1.5rem;
+    }
+
+    .servicios-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .quienes-somos-text p {
+        font-size: 1.12rem;
+        line-height: 1.85;
+    }
+
+    .footer__content {
+        padding: 2.3rem 1.2rem 2.5rem;
+    }
+
+    .footer-contacts {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.25rem;
+    }
+
+    .footer-contacts__card {
+        width: 100%;
     }
 }
 

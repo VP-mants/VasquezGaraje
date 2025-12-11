@@ -1,9 +1,10 @@
 {% extends 'home.html' %}
 {% load static %}
 
-{% block title %}Editar Reserva - Vasquez Garaje{% endblock %}
+{% block title %}Editar Reserva - VasquezGarage SPA{% endblock %}
 
 {% block extra_css %}
+{{ block.super }}
 <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
 {% endblock %}
 
@@ -14,44 +15,128 @@
             <h1>Editar Reserva</h1>
             <p>Actualiza el estado y los datos asociados a esta cita.</p>
         </header>
-        <nav class="admin-subnav">
-            <span class="admin-subnav__identity">Administrador: {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
-            <div class="admin-subnav__links">
-                <a href="{% url 'admin_perfil' %}">Perfil</a>
-                <a href="{% url 'admin_dashboard' %}" class="active">Reservas</a>
-                <a href="{% url 'admin_inventario' %}">Inventario</a>
-                <a href="{% url 'admin_usuarios' %}">Usuarios</a>
-            </div>
-        </nav>
+        {% include 'admin/_admin_navbar.html' with active_tab='reservas' %}
         <section class="admin-form-card">
-        <h2 class="admin-form-card__title">Datos de la reserva</h2>
-        <p class="admin-form-card__meta">Cliente: {{ reserva.usuario.nombre_cliente }} {{ reserva.usuario.apellido_cliente }} · Vehículo: {{ reserva.vehiculo.patente }}</p>
-        <p class="admin-form-card__meta">Servicio: {{ reserva.servicio.nombre_servicio }} · Inicio: {{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</p>
-        <form method="POST" class="reservation-form">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            <div class="form-group">
-                <label for="id_estado_reserva">Estado</label>
-                {{ form.estado_reserva }}
-            </div>
-            <div class="form-group">
-                <label for="id_notas_cliente">Notas del Cliente</label>
-                {{ form.notas_cliente }}
-            </div>
-            <div class="form-group">
-                <label for="id_direccion_reserva">Dirección</label>
-                {{ form.direccion_reserva }}
-            </div>
-            <div class="form-group">
-                <label for="id_comuna_reserva">Comuna</label>
-                {{ form.comuna_reserva }}
-            </div>
-            <div class="form-submit">
-                <button type="submit" class="btn btn-primario">Guardar Cambios</button>
-                <a href="{% url 'admin_dashboard' %}" class="btn btn-secundario">Cancelar</a>
-            </div>
-        </form>
+            <h2 class="admin-form-card__title">Datos de la reserva</h2>
+            <p class="admin-form-card__meta">Cliente: {{ reserva.usuario.nombre_cliente }} {{ reserva.usuario.apellido_cliente }} · Vehículo: {{ reserva.vehiculo.patente }}</p>
+            <p class="admin-form-card__meta">Servicio: {{ reserva.servicio.nombre_servicio }} · Inicio: {{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</p>
+            <form method="POST" class="reservation-form">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="form-group">
+                    <label for="id_estado_reserva">Estado</label>
+                    {{ form.estado_reserva }}
+                    {% for error in form.estado_reserva.errors %}
+                        <small class="admin-field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="id_notas_cliente">Notas del Cliente</label>
+                    {{ form.notas_cliente }}
+                    {% for error in form.notas_cliente.errors %}
+                        <small class="admin-field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="id_direccion_reserva">Dirección</label>
+                    {{ form.direccion_reserva }}
+                    {% for error in form.direccion_reserva.errors %}
+                        <small class="admin-field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="id_comuna_reserva">Comuna</label>
+                    {{ form.comuna_reserva }}
+                    {% for error in form.comuna_reserva.errors %}
+                        <small class="admin-field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="admin-insumos-section" data-insumos-formset>
+                    <div class="admin-insumos-header">
+                        <h3>Insumos utilizados</h3>
+                        <p class="admin-form-card__meta">Registra el consumo de insumos para mantener actualizado el inventario.</p>
+                    </div>
+
+                    {{ insumos_formset.management_form }}
+                    {% if insumos_formset.non_form_errors %}
+                        {% for error in insumos_formset.non_form_errors %}
+                            <small class="admin-field-error">{{ error }}</small>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="admin-insumos-formset" data-insumos-container>
+                        {% for insumo_form in insumos_formset.forms %}
+                            {% include 'admin/_insumo_form_row.html' with form=insumo_form can_delete=insumos_formset.can_delete is_template=False %}
+                        {% empty %}
+                            {% include 'admin/_insumo_form_row.html' with form=insumos_formset.empty_form can_delete=insumos_formset.can_delete is_template=False %}
+                        {% endfor %}
+                    </div>
+
+                    <template id="admin-insumo-template">
+                        {% include 'admin/_insumo_form_row.html' with form=insumos_formset.empty_form can_delete=insumos_formset.can_delete is_template=True %}
+                    </template>
+
+                    <div class="admin-insumos-actions">
+                        <button type="button" class="btn btn-secundario admin-insumos-add">Agregar insumo</button>
+                        <p class="admin-insumos-hint">Puedes añadir múltiples insumos según se utilicen en el servicio.</p>
+                    </div>
+                </div>
+
+                <div class="form-submit">
+                    <button type="submit" class="btn btn-primario">Guardar Cambios</button>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secundario">Cancelar</a>
+                </div>
+            </form>
         </section>
     </div>
 </div>
+<script>
+    (function() {
+        const section = document.querySelector('[data-insumos-formset]');
+        if (!section) { return; }
+
+        const container = section.querySelector('[data-insumos-container]');
+        const addButton = section.querySelector('.admin-insumos-add');
+        const managementForm = section.querySelector('input[name$="-TOTAL_FORMS"]');
+        const templateElement = document.getElementById('admin-insumo-template');
+
+        if (!container || !addButton || !managementForm || !templateElement) { return; }
+
+        const getNewForm = () => {
+            const templateContent = templateElement.innerHTML.trim();
+            const formIndex = parseInt(managementForm.value, 10);
+            const parser = document.createElement('div');
+            parser.innerHTML = templateContent.replace(/__prefix__/g, formIndex);
+            const newRow = parser.firstElementChild;
+            if (!newRow) { return null; }
+            newRow.style.display = '';
+            newRow.classList.remove('admin-insumo-row--template');
+            return newRow;
+        };
+
+        addButton.addEventListener('click', function() {
+            const newForm = getNewForm();
+            if (!newForm) { return; }
+            container.appendChild(newForm);
+            managementForm.value = parseInt(managementForm.value, 10) + 1;
+        });
+
+        container.addEventListener('click', function(event) {
+            const button = event.target.closest('[data-insumo-remove]');
+            if (!button) { return; }
+
+            event.preventDefault();
+            const row = button.closest('.admin-insumo-row');
+            if (!row) { return; }
+
+            const deleteField = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+            if (deleteField) {
+                deleteField.checked = true;
+            }
+
+            row.classList.add('admin-insumo-row--removed');
+        });
+    })();
+</script>
 {% endblock %}

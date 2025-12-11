@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import Count, Max, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -14,8 +15,12 @@ from django.utils import timezone
 from django.utils.formats import date_format
 
 from Controllers.forms import CambiarContrasenaForm, LoginForm, RegistroForm
-from Controllers.reserva_forms import ReservaForm, get_servicios_ordenados
-from Models.models import Cliente, Insumo, Reserva, Servicio, Vehiculo
+from Controllers.reserva_forms import (
+    ReservaForm,
+    ensure_servicios_predeterminados,
+    get_servicios_ordenados,
+)
+from Models.models import Cliente, Insumo, Reserva, ReservaInsumo, Servicio, Vehiculo
 
 
 RESERVA_DURACION = timedelta(hours=1, minutes=30)
@@ -404,12 +409,25 @@ def admin_perfil(request):
         estado_stats[estado] = total
         total_reservas += total
 
+    estado_chart_labels = []
+    estado_chart_data = []
+    for estado_codigo, estado_etiqueta in Reserva.ESTADO_CHOICES:
+        estado_chart_labels.append(estado_etiqueta)
+        estado_chart_data.append(estado_stats.get(estado_codigo, 0))
+
     clientes_totales = Cliente.objects.count()
     clientes_activos_30 = (
         Cliente.objects.filter(reserva__fecha_hora_inicio__gte=ahora - timedelta(days=30))
         .distinct()
         .count()
     )
+    clientes_inactivos_30 = max(clientes_totales - clientes_activos_30, 0)
+
+    clientes_chart_labels = [
+        'Activos últimos 30 días',
+        'Inactivos últimos 30 días',
+    ]
+    clientes_chart_data = [clientes_activos_30, clientes_inactivos_30]
 
     total_insumos = Insumo.objects.count()
     stock_total = Insumo.objects.aggregate(total=Sum('cantidad')).get('total') or 0
@@ -427,6 +445,10 @@ def admin_perfil(request):
         'stock_total': stock_total,
         'insumos_bajos': insumos_bajos,
         'umbral_bajo': umbral_bajo,
+        'estado_chart_labels': estado_chart_labels,
+        'estado_chart_data': estado_chart_data,
+        'clientes_chart_labels': clientes_chart_labels,
+        'clientes_chart_data': clientes_chart_data,
     }
     return render(request, 'admin/admin_perfil.html', contexto)
 
@@ -483,14 +505,157 @@ def admin_editar_reserva(request, id):
             model = Reserva
             fields = ['estado_reserva', 'notas_cliente', 'direccion_reserva', 'comuna_reserva']
 
+    class ReservaInsumoForm(forms.Form):
+        insumo = forms.ModelChoiceField(
+            queryset=Insumo.objects.none(),
+            required=False,
+            label='Insumo',
+            widget=forms.Select(attrs={'class': 'admin-insumo-select'}),
+        )
+        cantidad = forms.IntegerField(
+            required=False,
+            label='Cantidad utilizada',
+            min_value=0,
+            widget=forms.NumberInput(attrs={'class': 'admin-insumo-qty', 'min': 0, 'step': 1}),
+        )
+
+        def __init__(self, *args, **kwargs):
+            insumo_queryset = kwargs.pop('insumo_queryset', Insumo.objects.none())
+            super().__init__(*args, **kwargs)
+            self.fields['insumo'].queryset = insumo_queryset
+            self.fields['insumo'].label_from_instance = (
+                lambda obj: f"{obj.nombre} (stock: {obj.cantidad} {obj.unidad_medida})"
+            )
+
+        def clean(self):
+            cleaned_data = super().clean()
+            if cleaned_data.get('DELETE'):
+                return cleaned_data
+
+            insumo = cleaned_data.get('insumo')
+            cantidad = cleaned_data.get('cantidad')
+
+            if insumo and (cantidad is None or cantidad <= 0):
+                self.add_error('cantidad', 'Ingresa una cantidad mayor a cero.')
+
+            if cantidad and not insumo:
+                self.add_error('insumo', 'Selecciona un insumo.')
+
+            if not insumo:
+                cleaned_data['cantidad'] = 0
+
+            return cleaned_data
+
+    ReservaInsumoFormSet = forms.formset_factory(ReservaInsumoForm, extra=1, can_delete=True)
+
+    relaciones_existentes = list(reserva.insumos_utilizados.select_related('insumo'))
+    insumos_queryset = Insumo.objects.order_by('nombre')
+    inicial_insumos = [
+        {'insumo': relacion.insumo_id, 'cantidad': relacion.cantidad_utilizada}
+        for relacion in relaciones_existentes
+    ]
+
     if request.method == 'POST':
         form = AdminReservaForm(request.POST, instance=reserva)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Reserva actualizada correctamente.')
-            return redirect('admin_dashboard')
+        formset = ReservaInsumoFormSet(
+            request.POST,
+            prefix='insumos',
+            form_kwargs={'insumo_queryset': insumos_queryset},
+        )
+        form_es_valido = form.is_valid()
+        formset_es_valido = formset.is_valid()
+        if form_es_valido and formset_es_valido:
+                existentes_cantidades = {
+                    relacion.insumo_id: relacion.cantidad_utilizada for relacion in relaciones_existentes
+                }
+                existentes_objetos = {relacion.insumo_id: relacion for relacion in relaciones_existentes}
+
+                nuevos_totales = {}
+                formularios_por_insumo = {}
+                for indice, formulario in enumerate(formset.forms):
+                    datos = formulario.cleaned_data
+                    if not datos or datos.get('DELETE'):
+                        continue
+
+                    insumo = datos.get('insumo')
+                    cantidad = datos.get('cantidad') or 0
+
+                    if not insumo or cantidad <= 0:
+                        continue
+
+                    insumo_id = insumo.pk
+                    nuevos_totales[insumo_id] = nuevos_totales.get(insumo_id, 0) + cantidad
+                    formularios_por_insumo.setdefault(insumo_id, []).append(formulario)
+
+                ids_todos = set(existentes_cantidades.keys()) | set(nuevos_totales.keys())
+                insumos_objetos = {
+                    obj.pk: obj for obj in Insumo.objects.filter(pk__in=ids_todos)
+                }
+
+                error_stock = False
+                for insumo_id in ids_todos:
+                    insumo_obj = insumos_objetos.get(insumo_id)
+                    if not insumo_obj:
+                        continue
+                    cantidad_antigua = existentes_cantidades.get(insumo_id, 0)
+                    cantidad_nueva = nuevos_totales.get(insumo_id, 0)
+                    delta = cantidad_nueva - cantidad_antigua
+
+                    if delta > 0 and insumo_obj.cantidad < delta:
+                        error_stock = True
+                        for formulario in formularios_por_insumo.get(insumo_id, []):
+                            formulario.add_error(
+                                'cantidad',
+                                f"Solo hay {insumo_obj.cantidad} {insumo_obj.unidad_medida} disponibles en inventario.",
+                            )
+
+                if not error_stock:
+                    with transaction.atomic():
+                        form.save()
+
+                        insumos_bloqueados = {
+                            obj.pk: obj
+                            for obj in Insumo.objects.select_for_update().filter(pk__in=ids_todos)
+                        }
+
+                        for insumo_id in ids_todos:
+                            insumo_obj = insumos_bloqueados.get(insumo_id)
+                            if not insumo_obj:
+                                continue
+                            cantidad_antigua = existentes_cantidades.get(insumo_id, 0)
+                            cantidad_nueva = nuevos_totales.get(insumo_id, 0)
+                            delta = cantidad_nueva - cantidad_antigua
+
+                            if delta != 0:
+                                insumo_obj.cantidad -= delta
+                                insumo_obj.save(update_fields=['cantidad', 'fecha_actualizacion'])
+
+                        for insumo_id, cantidad in nuevos_totales.items():
+                            relacion = existentes_objetos.get(insumo_id)
+                            if relacion:
+                                if relacion.cantidad_utilizada != cantidad:
+                                    relacion.cantidad_utilizada = cantidad
+                                    relacion.save(update_fields=['cantidad_utilizada'])
+                            else:
+                                ReservaInsumo.objects.create(
+                                    reserva=reserva,
+                                    insumo_id=insumo_id,
+                                    cantidad_utilizada=cantidad,
+                                )
+
+                        for insumo_id in list(existentes_cantidades.keys()):
+                            if insumo_id not in nuevos_totales:
+                                existentes_objetos[insumo_id].delete()
+
+                    messages.success(request, 'Reserva actualizada correctamente.')
+                    return redirect('admin_dashboard')
     else:
         form = AdminReservaForm(instance=reserva)
+        formset = ReservaInsumoFormSet(
+            initial=inicial_insumos,
+            prefix='insumos',
+            form_kwargs={'insumo_queryset': insumos_queryset},
+        )
 
     return render(
         request,
@@ -499,6 +664,7 @@ def admin_editar_reserva(request, id):
             'form': form,
             'reserva': reserva,
             'admin_usuario': usuario,
+            'insumos_formset': formset,
         },
     )
 
@@ -576,7 +742,7 @@ def editar_reserva(request, id):
                         nueva_reserva.save()
                         cliente = reserva.usuario
                         send_mail(
-                            'Actualización de Reserva - Vasquez Garaje',
+                            'Actualización de Reserva - VasquezGarage SPA',
                             (
                                 f"Estimado/a {cliente.nombre_cliente},\n\n"
                                 "Su reserva ha sido actualizada para el día "
@@ -677,7 +843,29 @@ def cambiar_contrasena(request):
 # -----------------------
 
 def home(request):
-    return render(request, 'home.html')
+    ensure_servicios_predeterminados()
+
+    nombres_servicios = ['Consulta', 'Mantenimiento', 'Otros']
+    servicios_qs = Servicio.objects.filter(nombre_servicio__in=nombres_servicios)
+    servicios_map = {serv.nombre_servicio.lower(): serv for serv in servicios_qs}
+
+    descripciones_default = {
+        'consulta': 'Asesoría experta para diagnosticar y planificar el servicio que necesita tu vehículo.',
+        'mantenimiento': 'Programas de mantenimiento preventivo para mantener tu auto en óptimas condiciones.',
+        'otros': 'Servicios personalizados, cuéntanos tu necesidad y coordinamos la solución ideal.',
+    }
+
+    servicios_destacados = []
+    for nombre in nombres_servicios:
+        clave = nombre.lower()
+        servicio = servicios_map.get(clave)
+        descripcion = (servicio.descripcion_servicio.strip() if servicio and servicio.descripcion_servicio else '')
+        if not descripcion:
+            descripcion = descripciones_default.get(clave, '')
+        servicios_destacados.append({'titulo': nombre, 'descripcion': descripcion})
+
+    contexto = {'servicios_destacados': servicios_destacados}
+    return render(request, 'home.html', contexto)
 
 
 def login(request):
@@ -821,7 +1009,7 @@ def agendar_servicio(request):
                         reserva.fecha_hora_inicio = inicio_aware
                         reserva.save()
                         send_mail(
-                            'Confirmación de Reserva - Vasquez Garaje',
+                            'Confirmación de Reserva - VasquezGarage SPA',
                             (
                                 f"Estimado/a {cliente.nombre_cliente},\n\n"
                                 "Su reserva ha sido registrada para el día "

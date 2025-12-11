@@ -2,9 +2,10 @@
 {% extends 'home.html' %}
 {% load static %}
 
-{% block title %}Gestión de Reservas - Vasquez Garaje{% endblock %}
+{% block title %}Gestión de Reservas - VasquezGarage SPA{% endblock %}
 
 {% block extra_css %}
+{{ block.super }}
 <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
 {% endblock %}
 
@@ -16,24 +17,12 @@
             <p>Monitoriza las reservas, revisa el estado de cada cliente y gestiona las citas activas.</p>
         </header>
 
-        <nav class="admin-subnav">
-            <span class="admin-subnav__identity">Administrador: {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}</span>
-            <div class="admin-subnav__links">
-                <a href="{% url 'admin_perfil' %}">Perfil</a>
-                <a href="{% url 'admin_dashboard' %}" class="active">Reservas</a>
-                <a href="{% url 'admin_inventario' %}">Inventario</a>
-                <a href="{% url 'admin_usuarios' %}">Usuarios</a>
-            </div>
-        </nav>
+        {% include 'admin/_admin_navbar.html' with active_tab='reservas' %}
 
         <section class="admin-summary-grid">
             <article class="admin-summary-card">
                 <span>Reservas mes actual</span>
                 <strong>{{ total_reservas_mes }}</strong>
-            </article>
-            <article class="admin-summary-card">
-                <span>Ingresos estimados (mes)</span>
-                <strong>${{ ingresos_estimados_mes|floatformat:0 }}</strong>
             </article>
             <article class="admin-summary-card">
                 <span>Clientes nuevos (mes)</span>

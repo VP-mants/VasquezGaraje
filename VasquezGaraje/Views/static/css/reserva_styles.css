@@ -32,6 +32,9 @@
     background: #ffffff;
     box-shadow: 0 18px 40px rgba(13, 76, 146, 0.08);
     min-height: 520px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .calendar-holder .fc {
@@ -110,6 +113,7 @@
 
 .calendar-holder .fc-scrollgrid {
     border: none;
+    width: 100%;
 }
 
 .calendar-holder .fc-scrollgrid-section > * {
@@ -121,4 +125,60 @@
     color: #4b5563;
     font-size: 0.95rem;
     text-align: center;
+}
+
+@media (max-width: 900px) {
+    .card-container--wide {
+        width: 100%;
+    }
+
+    .calendar-holder {
+        padding: 16px;
+        min-height: 460px;
+    }
+
+    .calendar-holder .fc-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .calendar-holder .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .calendar-holder .fc-toolbar-title {
+        text-align: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .calendar-holder {
+        padding: 14px;
+        min-height: 420px;
+    }
+
+    .calendar-holder .fc {
+        font-size: 0.9rem;
+    }
+
+    .calendar-holder .fc-timegrid-slot-label {
+        font-size: 0.8rem;
+    }
+
+    .calendar-holder .fc-toolbar-chunk > .fc-button-group,
+    .calendar-holder .fc-toolbar-chunk > .fc-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .calendar-holder .fc-button {
+        flex: 1 1 auto;
+    }
+
+    .calendar-holder .fc-timegrid-axis-cushion {
+        padding: 4px 6px;
+    }
 }

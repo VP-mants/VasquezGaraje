@@ -1,9 +1,10 @@
 {% extends 'home.html' %}
 {% load static %}
 
-{% block title %}Agendar Servicio - Vasquez Garaje{% endblock %}
+{% block title %}Agendar Servicio - VasquezGarage SPA{% endblock %}
 
 {% block extra_css %}
+    {{ block.super }}
     <link rel="stylesheet" href="{% static 'css/login_styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/reserva_styles.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css">
@@ -123,9 +124,18 @@
             reservasData = [];
         }
 
+        var mobileQuery = window.matchMedia('(max-width: 640px)');
+
+        function buildToolbar(isMobile) {
+            if (isMobile) {
+                return { left: 'prev,next', center: 'title', right: 'timeGridDay,timeGridWeek' };
+            }
+            return { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' };
+        }
+
         var calendar = new FullCalendar.Calendar(calendarEl, {
             height: 'auto',
-            initialView: 'timeGridWeek',
+            initialView: mobileQuery.matches ? 'timeGridDay' : 'timeGridWeek',
             locale: 'es',
             firstDay: 1,
             slotDuration: '00:30:00',
@@ -141,11 +151,8 @@
                 startTime: '10:00',
                 endTime: '18:30'
             },
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'timeGridWeek,timeGridDay'
-            },
+            headerToolbar: buildToolbar(mobileQuery.matches),
+            dayHeaderFormat: { weekday: 'short', day: 'numeric' },
             buttonText: {
                 today: 'Hoy',
                 week: 'Semana',
@@ -183,6 +190,18 @@
         });
 
         calendar.render();
+
+        function handleBreakpoint(event) {
+            var isMobile = event.matches;
+            calendar.setOption('headerToolbar', buildToolbar(isMobile));
+            calendar.changeView(isMobile ? 'timeGridDay' : 'timeGridWeek');
+        }
+
+        if (mobileQuery.addEventListener) {
+            mobileQuery.addEventListener('change', handleBreakpoint);
+        } else if (mobileQuery.addListener) {
+            mobileQuery.addListener(handleBreakpoint);
+        }
 
         var emptyMessage = document.getElementById('calendarEmptyMessage');
         if (emptyMessage) {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}VasquezGaraje - Mantenimiento a Domicilio{% endblock %}</title>
+    <title>{% block title %}VasquezGarage - Mantenimiento a Domicilio{% endblock %}</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     
@@ -17,15 +17,17 @@
 </head>
 <body>
 
+    {% with request.resolver_match.url_name as current_url %}
+    {% if not request.session.es_admin or current_url != 'admin_perfil' and current_url != 'admin_dashboard' and current_url != 'admin_editar_reserva' and current_url != 'admin_inventario' and current_url != 'admin_insumo_nuevo' and current_url != 'admin_insumo_editar' and current_url != 'admin_insumo_eliminar' and current_url != 'admin_usuarios' %}
     <nav class="navbar">
         <div class="navbar-container container">
             <a href="{% url 'home' %}" class="logo" style="display: flex; align-items: center; gap: 10px;">
-                <img src="{% static 'images/logo.jpg' %}" alt="Logo Vasquez Garaje" style="height: 72px; width: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo VasquezGarage SPA" style="height: 72px; width: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                 <span style="font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: 0.08em; text-transform: uppercase;"></span>
             </a>
             
-            <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox" style="display:none;">
-            <label for="nav-toggle" class="nav-toggle-label" style="display:none; cursor:pointer;">
+            <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
+            <label for="nav-toggle" class="nav-toggle-label" style="cursor:pointer;">
                 <span class="hamburger" style="color:white; font-size:24px;">☰</span>
             </label>
             
@@ -62,26 +64,53 @@
             </div>
         </div>
     </nav>
+    {% endif %}
+    {% endwith %}
+
+    {% if request.resolver_match and request.resolver_match.url_name == 'home' %}
+    <aside id="floatingReserva" class="cta-floating" aria-hidden="true">
+        <h2 class="cta-floating__title">Reserva tu Hora</h2>
+        <p class="cta-floating__text">Reserva tu hora para una atención personalizada.</p>
+        <a href="{% url 'agendar_servicio' %}" class="btn btn-primario cta-floating__button">Reservar Ahora</a>
+    </aside>
+    {% endif %}
 
     <main>
         {% block content %}
         <header class="hero-section" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('{% static 'images/imagen 1.jpg' %}'); background-size: cover; background-position: center;">
-            <h1>Mantenimiento Profesional de Vehículos a domicilio</h1>
+            <h1 class="hero-title">
+                <span class="hero-title__primary">VasquezGarage</span>
+                <span class="hero-title__secondary">Mantenimiento Profesional de Vehículos a domicilio</span>
+            </h1>
         </header>
 
-        <section id="quienes-somos" class="page-section">
+        <section id="quienes-somos" class="page-section quienes-somos-panel">
             <div class="container">
                 <h2>Quiénes Somos</h2>
-                <p style="text-align: center; max-width: 800px; margin: 0 auto 20px;">
-                    Bienvenido a Vásquez Garage Spa, su destino de confianza...
-                </p>
+                <div class="quienes-somos-text">
+                    <p>
+                        Bienvenido a VasquezGarage SPA, su destino de confianza en la Región Metropolitana, Chile, con 20 años de experiencia en la venta de repuestos y servicios de mantenimiento y reparación de vehículos.
+                    </p>
+                    <p>
+                        Ofrecemos un servicio completamente a domicilio, garantizado y con facturación, asegurando la mejor calidad y prestigio en cada trabajo que realizamos.
+                    </p>
+                </div>
             </div>
         </section>
 
         <section id="servicios" class="page-section" style="background-color: var(--color-fondo-blanco);">
             <div class="container">
-                <h2>Servicios</h2>
-                <p style="text-align: center;">Venta de repuestos, mantenimiento general, reparación de motor, etc.</p>
+                <h2 class="servicios-heading">Servicios</h2>
+                <div class="servicios-grid" role="list">
+                    {% for servicio in servicios_destacados %}
+                        <article class="servicio-card" role="listitem">
+                            <h3>{{ servicio.titulo }}</h3>
+                            <p>{{ servicio.descripcion }}</p>
+                        </article>
+                    {% empty %}
+                        <p class="servicios-empty">Estamos actualizando nuestro catálogo de servicios. Vuelve pronto.</p>
+                    {% endfor %}
+                </div>
             </div>
         </section>
 
@@ -116,7 +145,25 @@
     </main>
 
     <footer class="footer">
-        <p>&copy; {% now "Y" %} Vasquez Garaje. Todos los derechos reservados.</p>
+        <div class="footer__content">
+            <div class="footer-contacts">
+                <article class="footer-contacts__card">
+                    <img class="footer-contacts__icon" src="{% static 'images/logos/WhatsApp.svg.png' %}" alt="Logo WhatsApp">
+                    <div>
+                        <h3 class="footer-contacts__title">Whatsapp</h3>
+                        <p class="footer-contacts__text">+569 5769 3854</p>
+                    </div>
+                </article>
+                <article class="footer-contacts__card">
+                    <img class="footer-contacts__icon" src="{% static 'images/logos/Tiktok_icon.svg.png' %}" alt="Logo TikTok">
+                    <div>
+                        <h3 class="footer-contacts__title">TikTok</h3>
+                        <p class="footer-contacts__text">@carlosvasquez2197</p>
+                    </div>
+                </article>
+            </div>
+            <p class="footer__copy">&copy; {% now "Y" %} VasquezGarage SPA. Todos los derechos reservados.</p>
+        </div>
     </footer>
 
     <div id="galleryLightbox" class="gallery-lightbox" aria-hidden="true" role="dialog" aria-modal="true">
@@ -183,6 +230,24 @@
                     closeLightbox();
                 }
             });
+
+            var floatingCTA = document.getElementById('floatingReserva');
+            var reservaSection = document.getElementById('reserva');
+
+            function updateFloatingVisibility() {
+                if (!floatingCTA || !reservaSection) {
+                    return;
+                }
+                var rect = reservaSection.getBoundingClientRect();
+                var sectionVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                var shouldHide = sectionVisible;
+                floatingCTA.classList.toggle('is-hidden', shouldHide);
+                floatingCTA.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
+            }
+
+            updateFloatingVisibility();
+            window.addEventListener('scroll', updateFloatingVisibility);
+            window.addEventListener('resize', updateFloatingVisibility);
         });
     </script>
 

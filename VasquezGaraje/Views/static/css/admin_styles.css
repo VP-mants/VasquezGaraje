@@ -184,6 +184,156 @@
     border-color: #005A9C;
 }
 
+.admin-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    background: linear-gradient(135deg, #0a4f88, #0a62ad);
+    color: #ffffff;
+    border-radius: 18px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 14px 32px rgba(10, 66, 120, 0.22);
+}
+
+.admin-topbar__brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.admin-topbar__logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    object-fit: cover;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+.admin-topbar__brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-topbar__company {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.admin-topbar__tagline {
+    font-size: 0.92rem;
+    opacity: 0.85;
+}
+
+.admin-topbar__menu {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+}
+
+.admin-topbar__welcome {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.admin-topbar__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-topbar__link {
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+    backdrop-filter: blur(4px);
+}
+
+.admin-topbar__link:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.admin-topbar__link.is-active {
+    background: #ffc107;
+    color: #1b2838;
+    border-color: #ffc107;
+}
+
+.admin-topbar__logout {
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #0a4f88 !important;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 6px 14px rgba(10, 66, 120, 0.22);
+}
+
+.admin-topbar__logout:hover {
+    background: #f8fafc;
+}
+
+@media (max-width: 900px) {
+    .admin-topbar {
+        gap: 18px;
+    }
+
+    .admin-topbar__menu {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .admin-topbar__nav {
+        justify-content: center;
+    }
+
+    .admin-topbar__welcome {
+        text-align: center;
+    }
+
+    .admin-topbar__logout {
+        align-self: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-topbar {
+        padding: 16px;
+    }
+
+    .admin-topbar__brand {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .admin-topbar__welcome {
+        white-space: normal;
+    }
+
+    .admin-topbar__nav {
+        gap: 10px;
+    }
+
+    .admin-topbar__link,
+    .admin-topbar__logout {
+        width: 100%;
+        text-align: center;
+    }
+}
+
 .admin-header {
     margin-bottom: 20px;
 }
@@ -312,4 +462,127 @@
     display: block;
     font-size: 0.9rem;
     color: #4b5a6b;
+}
+
+.admin-field-error {
+    display: block;
+    margin-top: 6px;
+    color: #c0392b;
+    font-size: 0.85rem;
+}
+
+.admin-insumos-section {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border-top: 1px solid rgba(15, 46, 82, 0.08);
+    padding-top: 18px;
+}
+
+.admin-insumos-header h3 {
+    margin: 0;
+    color: var(--color-primario);
+}
+
+.admin-insumos-stock {
+    list-style: none;
+    padding: 12px 16px;
+    background: #f3f6fb;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px 16px;
+}
+
+.admin-insumos-stock li {
+    font-size: 0.92rem;
+    color: #1f3b58;
+}
+
+.admin-insumos-empty {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: #8a6d1d;
+    font-size: 0.95rem;
+}
+
+.admin-insumos-formset {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-insumo-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    background: #f8fbff;
+    border: 1px solid rgba(0, 90, 156, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+}
+
+.admin-insumo-row--template {
+    display: none;
+}
+
+.admin-insumo-row--removed {
+    display: none !important;
+}
+
+.admin-insumo-field {
+    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-insumo-field label {
+    font-weight: 600;
+    color: #0f2e52;
+}
+
+.admin-insumo-field select,
+.admin-insumo-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.95rem;
+    background: #ffffff;
+}
+
+.admin-insumo-delete {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-insumo-delete-checkbox {
+    display: none;
+}
+
+.admin-insumo-remove {
+    padding: 8px 14px;
+}
+
+.admin-insumos-hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #607d8b;
+}
+
+.admin-insumos-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.admin-insumo-errors {
+    width: 100%;
 }

@@ -1,0 +1,30 @@
+<div class="admin-insumo-row{% if is_template %} admin-insumo-row--template{% endif %}" data-existing="{% if form.initial.insumo or form.initial.cantidad %}true{% else %}false{% endif %}"{% if is_template %} data-template="true" style="display:none;"{% endif %}>
+    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+    <div class="admin-insumo-field">
+        {{ form.insumo.label_tag }}
+        {{ form.insumo }}
+        {% for error in form.insumo.errors %}
+            <small class="admin-field-error">{{ error }}</small>
+        {% endfor %}
+    </div>
+    <div class="admin-insumo-field">
+        {{ form.cantidad.label_tag }}
+        {{ form.cantidad }}
+        {% for error in form.cantidad.errors %}
+            <small class="admin-field-error">{{ error }}</small>
+        {% endfor %}
+    </div>
+    {% if can_delete %}
+    <div class="admin-insumo-delete">
+        <span class="admin-insumo-delete-checkbox">{{ form.DELETE }}</span>
+        <button type="button" class="btn btn-secundario admin-insumo-remove" data-insumo-remove>Quitar</button>
+    </div>
+    {% endif %}
+    {% if form.non_field_errors %}
+    <div class="admin-insumo-errors">
+        {% for error in form.non_field_errors %}
+            <small class="admin-field-error">{{ error }}</small>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>

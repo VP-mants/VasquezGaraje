@@ -1,9 +1,10 @@
 {% extends 'home.html' %}
 {% load static %}
 
-{% block title %}Mi Perfil - Vasquez Garaje{% endblock %}
+{% block title %}Mi Perfil - VasquezGarage SPA{% endblock %}
 
 {% block extra_css %}
+    {{ block.super }}
     <link rel="stylesheet" href="{% static 'css/perfil_styles.css' %}">
 {% endblock %}
 
