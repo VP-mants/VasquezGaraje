@@ -45,15 +45,35 @@ class Vehiculo(models.Model):
 		db_table = 'VEHICULO'
 		managed = False
 
+	def __str__(self):
+		if self.marca and self.modelo:
+			return f"{self.patente} - {self.marca} {self.modelo}"
+		if self.marca:
+			return f"{self.patente} - {self.marca}"
+		return self.patente
+
 class Servicio(models.Model):
+	CATEGORIA_CONSULTA = 'consulta'
+	CATEGORIA_REPARACION = 'reparacion_especifica'
+	CATEGORIA_OTROS = 'otros'
+	CATEGORIA_CHOICES = [
+		(CATEGORIA_CONSULTA, 'Consulta'),
+		(CATEGORIA_REPARACION, 'Reparación Específica'),
+		(CATEGORIA_OTROS, 'Otros (agrega detalles en comentarios)'),
+	]
 	servicio_id = models.AutoField(primary_key=True)
 	nombre_servicio = models.CharField(max_length=100)
 	descripcion_servicio = models.TextField()
 	duracion_servicio = models.IntegerField()
+	categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, default=CATEGORIA_OTROS)
 
 	class Meta:
 		db_table = 'SERVICIO'
 		managed = False
+
+	def __str__(self):
+		categoria = dict(self.CATEGORIA_CHOICES).get(self.categoria, 'Servicio')
+		return f"{categoria} · {self.nombre_servicio}"
 
 
 class Reserva(models.Model):
@@ -78,3 +98,24 @@ class Reserva(models.Model):
 	class Meta:
 		db_table = 'RESERVA'
 		managed = True
+
+
+class ReservaInsumo(models.Model):
+	reserva = models.ForeignKey(
+		Reserva,
+		on_delete=models.CASCADE,
+		related_name='insumos_utilizados',
+	)
+	insumo = models.ForeignKey(
+		Insumo,
+		on_delete=models.PROTECT,
+	)
+	cantidad_utilizada = models.PositiveIntegerField()
+
+	class Meta:
+		db_table = 'RESERVA_INSUMO'
+		managed = True
+		unique_together = ('reserva', 'insumo')
+
+	def __str__(self):
+		return f"{self.reserva_id} · {self.insumo.nombre} ({self.cantidad_utilizada})"

@@ -1,0 +1,346 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block title %}Perfil Administrador - VasquezGarage SPA{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+<style>
+    .admin-stats-grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        margin-bottom: 24px;
+    }
+    .admin-stat-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        padding: 18px;
+    }
+    .admin-stat-card h3 {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        color: #607d8b;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+    }
+    .admin-stat-card p {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--color-primario);
+        margin: 0;
+    }
+    .admin-section {
+        margin-top: 32px;
+    }
+    .admin-section h2 {
+        color: var(--color-primario);
+        margin-bottom: 12px;
+        font-size: 1.3rem;
+    }
+    .table td small {
+        color: #607d8b;
+        font-size: 0.85rem;
+        display: block;
+    }
+    .empty-hint {
+        padding: 18px;
+        background: #f7fafd;
+        border: 1px dashed #b0bec5;
+        border-radius: 8px;
+        text-align: center;
+        color: #607d8b;
+    }
+    .admin-chart-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 16px;
+    }
+    .admin-chart-card {
+        position: relative;
+        flex: 1 1 280px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .admin-chart-card h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--color-primario);
+    }
+    .admin-chart-card canvas {
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        min-height: 0;
+        flex: 1 1 auto;
+    }
+    .admin-chart-canvas {
+        position: relative;
+        flex: 1 1 auto;
+        width: 100%;
+        height: 260px;
+        min-height: 260px;
+    }
+    .admin-chart-empty {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #607d8b;
+        font-size: 0.95rem;
+        text-align: center;
+        padding: 40px 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 20px;">
+    <div class="main-content">
+        <header style="margin-bottom: 20px;">
+            <h1 style="color: var(--color-primario); margin-bottom: 8px;">Panel del Administrador</h1>
+            <p style="color: #607d8b;">Hola {{ admin_usuario.nombre_cliente }} {{ admin_usuario.apellido_cliente }}, aquí tienes una vista general de la operación.</p>
+        </header>
+
+        {% include 'admin/_admin_navbar.html' with active_tab='perfil' %}
+
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+                <h3>Total Reservas</h3>
+                <p>{{ total_reservas }}</p>
+            </div>
+            <div class="admin-stat-card">
+                <h3>Clientes Registrados</h3>
+                <p>{{ clientes_totales }}</p>
+            </div>
+            <div class="admin-stat-card">
+                <h3>Clientes activos 30d</h3>
+                <p>{{ clientes_activos_30 }}</p>
+            </div>
+            <div class="admin-stat-card">
+                <h3>Insumos catalogados</h3>
+                <p>{{ total_insumos }}</p>
+            </div>
+            <div class="admin-stat-card">
+                <h3>Stock total</h3>
+                <p>{{ stock_total }}</p>
+            </div>
+        </div>
+
+        <section class="admin-section">
+            <h2>Resumen visual</h2>
+            <div class="admin-chart-grid">
+                <article class="admin-chart-card">
+                    <h3>Reservas por estado</h3>
+                    <div class="admin-chart-canvas">
+                        <canvas id="reservasEstadoChart" aria-label="Distribución de reservas por estado" role="img"></canvas>
+                    </div>
+                    <div class="admin-chart-empty" id="reservasEstadoEmpty" hidden>No hay datos suficientes para graficar.</div>
+                </article>
+                <article class="admin-chart-card">
+                    <h3>Actividad de clientes</h3>
+                    <div class="admin-chart-canvas">
+                        <canvas id="clientesActividadChart" aria-label="Clientes activos frente a inactivos" role="img"></canvas>
+                    </div>
+                    <div class="admin-chart-empty" id="clientesActividadEmpty" hidden>No hay datos suficientes para graficar.</div>
+                </article>
+            </div>
+        </section>
+
+        <section class="admin-section">
+            <h2>Reservas por estado</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                {% for estado, total in estado_stats.items %}
+                    <div class="admin-stat-card" style="flex: 1 1 180px;">
+                        <h3>{{ estado }}</h3>
+                        <p>{{ total }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="admin-section">
+            <h2>Próximas reservas</h2>
+            {% if proximas_reservas %}
+                <div style="overflow-x: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fecha y hora</th>
+                                <th>Cliente</th>
+                                <th>Vehículo</th>
+                                <th>Servicio</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in proximas_reservas %}
+                                <tr>
+                                    <td>{{ reserva.fecha_hora_inicio|date:'d/m/Y H:i' }}</td>
+                                    <td>{{ reserva.usuario.nombre_cliente }} {{ reserva.usuario.apellido_cliente }}</td>
+                                    <td>{{ reserva.vehiculo.patente }}</td>
+                                    <td>{{ reserva.servicio.nombre_servicio }}</td>
+                                    <td>{{ reserva.estado_reserva }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-hint">No hay reservas próximas registradas.</div>
+            {% endif %}
+        </section>
+
+        <section class="admin-section">
+            <h2>Insumos con stock bajo (≤ {{ umbral_bajo }})</h2>
+            {% if insumos_bajos %}
+                <div style="overflow-x: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Cantidad</th>
+                                <th>Unidad</th>
+                                <th>Actualización</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for insumo in insumos_bajos %}
+                                <tr>
+                                    <td>{{ insumo.nombre }}</td>
+                                    <td>{{ insumo.cantidad }}</td>
+                                    <td>{{ insumo.unidad_medida }}</td>
+                                    <td>{{ insumo.fecha_actualizacion|date:'d/m/Y H:i' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-hint">Todos los insumos superan el umbral mínimo configurado.</div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+
+{{ estado_chart_labels|json_script:"estado-chart-labels" }}
+{{ estado_chart_data|json_script:"estado-chart-data" }}
+{{ clientes_chart_labels|json_script:"clientes-chart-labels" }}
+{{ clientes_chart_data|json_script:"clientes-chart-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const estadoLabelsEl = document.getElementById('estado-chart-labels');
+        const estadoDataEl = document.getElementById('estado-chart-data');
+        const clientesLabelsEl = document.getElementById('clientes-chart-labels');
+        const clientesDataEl = document.getElementById('clientes-chart-data');
+
+        if (!estadoLabelsEl || !estadoDataEl || !clientesLabelsEl || !clientesDataEl || typeof Chart === 'undefined') {
+            return;
+        }
+
+        const estadoLabels = JSON.parse(estadoLabelsEl.textContent || '[]');
+        const estadoData = JSON.parse(estadoDataEl.textContent || '[]').map(function (valor) {
+            const numero = Number(valor);
+            return Number.isFinite(numero) ? numero : 0;
+        });
+        const clientesLabels = JSON.parse(clientesLabelsEl.textContent || '[]');
+        const clientesData = JSON.parse(clientesDataEl.textContent || '[]').map(function (valor) {
+            const numero = Number(valor);
+            return Number.isFinite(numero) ? numero : 0;
+        });
+
+        console.log('estado data parsed', estadoData);
+        console.log('clientes data parsed', clientesData);
+
+        function renderPieChart(canvasId, emptyId, labels, dataset, colors, chartTitle) {
+            const canvas = document.getElementById(canvasId);
+            const emptyMessage = document.getElementById(emptyId);
+
+            if (!canvas || !emptyMessage) {
+                return;
+            }
+
+            const hasData = dataset.some(function (value) { return Number(value) > 0; });
+            console.log('chart data', canvasId, dataset, hasData);
+            if (!hasData) {
+                canvas.hidden = true;
+                canvas.style.display = 'none';
+                emptyMessage.hidden = false;
+                emptyMessage.style.display = 'flex';
+                return;
+            }
+
+            const context = canvas.getContext('2d');
+            if (!context) {
+                canvas.hidden = true;
+                canvas.style.display = 'none';
+                emptyMessage.hidden = false;
+                emptyMessage.style.display = 'flex';
+                return;
+            }
+
+            canvas.hidden = false;
+            canvas.style.display = 'block';
+            emptyMessage.hidden = true;
+            emptyMessage.style.display = 'none';
+
+            new Chart(context, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataset,
+                        backgroundColor: colors,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: chartTitle
+                            ? {
+                                display: true,
+                                text: chartTitle,
+                                padding: {
+                                    bottom: 10,
+                                },
+                            }
+                            : undefined,
+                    },
+                },
+            });
+        }
+
+        renderPieChart(
+            'reservasEstadoChart',
+            'reservasEstadoEmpty',
+            estadoLabels,
+            estadoData,
+            ['#0a62ad', '#ffc107', '#19a974', '#ef6c00', '#607d8b', '#8e44ad'],
+            'Reservas por estado'
+        );
+
+        renderPieChart(
+            'clientesActividadChart',
+            'clientesActividadEmpty',
+            clientesLabels,
+            clientesData,
+            ['#0a62ad', '#94a3b8'],
+            'Actividad de clientes'
+        );
+    });
+</script>
+{% endblock %}

@@ -4,30 +4,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - VasquezGaraje</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/main_styles.css' %}">
+    <title>Registro - VasquezGarage</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login_styles.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="form-container">
-        <h1>Crear Cuenta</h1>
-        <p>Regístrate para comenzar a agendar tus servicios a domicilio.</p>
-        {% if messages %}
-            <ul class="form-errors">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn-primario">Registrarse</button>
-            <p style="text-align:center; margin-top:20px;">
-                ¿Ya tienes cuenta? <a href="{% url 'login' %}" style="color: var(--color-primario); text-decoration: none;">Inicia Sesión</a>
-            </p>
-        </form>
-    </div>
+<body class="auth-body">
+    <section class="form-page">
+        <div class="card-layout">
+            <aside class="card-media">
+                <img src="{% static 'images/logo.jpg' %}" alt="VasquezGarage SPA" class="card-logo">
+                <p class="card-tagline">Únete a la comunidad que mantiene su auto impecable con nuestros especialistas certificados.</p>
+            </aside>
+            <div class="card-panel">
+                <div class="card-header">
+                    <h1 class="card-title">Crear Cuenta</h1>
+                    <p class="card-subtitle">Regístrate para comenzar a agendar tus servicios a domicilio.</p>
+                </div>
+
+                {% if messages %}
+                    <div class="alert-stack">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'info'|slugify }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert-stack">
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post" class="form-layout">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.nombre_cliente.id_for_label }}">{{ form.nombre_cliente.label }}</label>
+                            {{ form.nombre_cliente }}
+                            {% if form.nombre_cliente.errors %}
+                                <div class="field-error">{{ form.nombre_cliente.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.apellido_cliente.id_for_label }}">{{ form.apellido_cliente.label }}</label>
+                            {{ form.apellido_cliente }}
+                            {% if form.apellido_cliente.errors %}
+                                <div class="field-error">{{ form.apellido_cliente.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.correo_cliente.id_for_label }}">{{ form.correo_cliente.label }}</label>
+                        {{ form.correo_cliente }}
+                        {% if form.correo_cliente.errors %}
+                            <div class="field-error">{{ form.correo_cliente.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.telefono_cliente.id_for_label }}">{{ form.telefono_cliente.label }}</label>
+                        {{ form.telefono_cliente }}
+                        {% if form.telefono_cliente.errors %}
+                            <div class="field-error">{{ form.telefono_cliente.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.contraseña_cliente.id_for_label }}">{{ form.contraseña_cliente.label }}</label>
+                        {{ form.contraseña_cliente }}
+                        {% if form.contraseña_cliente.errors %}
+                            <div class="field-error">{{ form.contraseña_cliente.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.confirmar_contraseña.id_for_label }}">{{ form.confirmar_contraseña.label }}</label>
+                        {{ form.confirmar_contraseña }}
+                        {% if form.confirmar_contraseña.errors %}
+                            <div class="field-error">{{ form.confirmar_contraseña.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Registrarse</button>
+                    </div>
+                </form>
+
+                <div class="form-note">
+                    <span>¿Ya tienes cuenta?</span>
+                    <a href="{% url 'login' %}">Inicia sesión</a>
+                </div>
+            </div>
+        </div>
+    </section>
 </body>
 </html>

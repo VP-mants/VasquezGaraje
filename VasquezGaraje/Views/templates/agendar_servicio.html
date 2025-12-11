@@ -1,163 +1,212 @@
+{% extends 'home.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendar Servicio - Vasquez Garaje</title>
-    
-    <link rel="stylesheet" href="{% static 'css/main_styles.css' %}">
+
+{% block title %}Agendar Servicio - VasquezGarage SPA{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/login_styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/reserva_styles.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css">
+{% endblock %}
 
-    <header class="navbar">
-        <div class="container">
-            <h1><a href="{% url 'home' %}">Vasquez Garaje</a></h1>
-            <nav>
-                <ul>
-                    {% if user.is_authenticated %}
-                        <li><a href="{% url 'mis_servicios' %}">Mis Servicios</a></li>
-                        <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
-                    {% else %}
-                        <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="page-content form-container">
-            <h2>Agendar un Nuevo Servicio</h2>
-            <p>Completa los siguientes datos para reservar tu cita. Nos pondremos en contacto para confirmar.</p>
-
-            <form method="POST" class="reservation-form">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="id_vehiculo">Vehículo</label>
-                    {{ form.vehiculo }}
-                    {% if form.vehiculo.errors %}
-                        <div class="field-errors">{{ form.vehiculo.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_servicio">Tipo de Servicio</label>
-                    {{ form.servicio }}
-                    {% if form.servicio.errors %}
-                        <div class="field-errors">{{ form.servicio.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_fecha_hora_inicio">Fecha y Hora</label>
-                    <input type="datetime-local" name="fecha_hora_inicio" id="id_fecha_hora_inicio" class="input-box" min="{{ min_datetime }}" max="{{ max_datetime }}" step="1800" value="{{ form.fecha_hora_inicio.value|default_if_none:'' }}">
-                    {% if form.fecha_hora_inicio.errors %}
-                        <div class="field-errors">{{ form.fecha_hora_inicio.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_patente">Patente</label>
-                    {{ form.patente }}
-                    {% if form.patente.errors %}
-                        <div class="field-errors">{{ form.patente.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_direccion_reserva">Dirección</label>
-                    {{ form.direccion_reserva }}
-                    {% if form.direccion_reserva.errors %}
-                        <div class="field-errors">{{ form.direccion_reserva.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_comuna_reserva">Comuna</label>
-                    {{ form.comuna_reserva }}
-                    {% if form.comuna_reserva.errors %}
-                        <div class="field-errors">{{ form.comuna_reserva.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_notas_cliente">Notas adicionales (opcional)</label>
-                    {{ form.notas_cliente }}
-                    {% if form.notas_cliente.errors %}
-                        <div class="field-errors">{{ form.notas_cliente.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-submit">
-                    <button type="submit" class="btn-primary">Confirmar Reserva</button>
-                </div>
-            </form>
+{% block content %}
+<section class="form-page-embedded">
+    <div class="card-container card-container--wide">
+        <div class="card-header">
+            <h1 class="card-title">Agendar un Nuevo Servicio</h1>
+            <p class="card-subtitle">Completa los datos para reservar tu cita.</p>
         </div>
 
-        <div class="calendar-section">
-            <h3>Disponibilidad semanal</h3>
-            <div id="calendar" class="calendar-week"></div>
-            <script>
-                // Horarios ocupados desde Django (rango inicio y fin)
-                const horariosOcupados = {{ horarios_ocupados|safe }};
-                // Configuración de la semana actual
-                const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-                const horas = Array.from({length: 12}, (_, i) => i + 8); // 8:00 a 19:00
-                // Obtener el lunes de la semana actual
-                const hoy = new Date();
-                const lunes = new Date(hoy);
-                lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
-                // Generar matriz de celdas con estado ocupado
-                let ocupadas = Array(7).fill(0).map(() => Array(12).fill(false));
-                horariosOcupados.forEach(rango => {
-                    const inicio = new Date(rango.inicio);
-                    const fin = new Date(rango.fin);
-                    for(let d=0; d<7; d++) {
-                        for(let h=0; h<12; h++) {
-                            let celda = new Date(lunes);
-                            celda.setDate(lunes.getDate() + d);
-                            celda.setHours(8 + h, 0, 0, 0);
-                            let celdaFin = new Date(celda);
-                            celdaFin.setMinutes(celda.getMinutes() + 60);
-                            // Si la celda se solapa con el rango ocupado
-                            if (celda < fin && celdaFin > inicio) {
-                                ocupadas[d][h] = true;
-                            }
-                        }
-                    }
-                });
-                let html = '<table class="calendar-table"><thead><tr><th></th>';
-                dias.forEach(d => html += `<th>${d}</th>`);
-                html += '</tr></thead><tbody>';
-                horas.forEach((h, hi) => {
-                    html += `<tr><td>${h}:00</td>`;
-                    for(let d=0; d<7; d++) {
-                        let cellClass = 'calendar-cell';
-                        if (ocupadas[d][hi]) cellClass += ' occupied';
-                        html += `<td class="${cellClass}"></td>`;
-                    }
-                    html += '</tr>';
-                });
-                html += '</tbody></table>';
-                document.getElementById('calendar').innerHTML = html;
-            </script>
+        <form method="post" class="form-layout">
+            {% csrf_token %}
+            {{ form.fecha_hora_inicio }}
+
+            {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors|striptags }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.vehiculo_texto.id_for_label }}">{{ form.vehiculo_texto.label }}</label>
+                {{ form.vehiculo_texto }}
+                {% if form.vehiculo_texto.errors %}
+                    <div class="field-error">{{ form.vehiculo_texto.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.servicio.id_for_label }}">{{ form.servicio.label }}</label>
+                {{ form.servicio }}
+                {% if form.servicio.errors %}
+                    <div class="field-error">{{ form.servicio.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.fecha_reserva.id_for_label }}">{{ form.fecha_reserva.label }}</label>
+                    {{ form.fecha_reserva }}
+                    <span class="help-text">Selecciona el día que prefieras.</span>
+                    {% if form.fecha_reserva.errors %}
+                        <div class="field-error">{{ form.fecha_reserva.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.hora_reserva.id_for_label }}">{{ form.hora_reserva.label }}</label>
+                    {{ form.hora_reserva }}
+                    <span class="help-text">Bloques de 90 minutos entre 10:00 y 18:30.</span>
+                    {% if form.hora_reserva.errors %}
+                        <div class="field-error">{{ form.hora_reserva.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.direccion_reserva.id_for_label }}">{{ form.direccion_reserva.label }}</label>
+                {{ form.direccion_reserva }}
+                {% if form.direccion_reserva.errors %}
+                    <div class="field-error">{{ form.direccion_reserva.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.comuna_reserva.id_for_label }}">{{ form.comuna_reserva.label }}</label>
+                {{ form.comuna_reserva }}
+                {% if form.comuna_reserva.errors %}
+                    <div class="field-error">{{ form.comuna_reserva.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.patente.id_for_label }}">{{ form.patente.label }}</label>
+                {{ form.patente }}
+                {% if form.patente.errors %}
+                    <div class="field-error">{{ form.patente.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.notas_cliente.id_for_label }}">{{ form.notas_cliente.label }}</label>
+                {{ form.notas_cliente }}
+                {% if form.notas_cliente.errors %}
+                    <div class="field-error">{{ form.notas_cliente.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Confirmar Reserva</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-container card-container--wide calendar-card">
+        <div class="card-header">
+            <h2 class="card-title">Calendario de Reservas</h2>
+            <p class="card-subtitle">Revisa los bloques ya comprometidos antes de escoger tu horario.</p>
         </div>
-        <style>
-            .calendar-section { margin: 2.5rem 0; }
-            .calendar-table { width: 100%; border-collapse: collapse; }
-            .calendar-table th, .calendar-table td { border: 1px solid #e0e0e0; padding: 6px 8px; text-align: center; }
-            .calendar-table th { background: #005A9C; color: #fff; }
-            .calendar-cell { background: #f7fafd; min-width: 40px; height: 32px; }
-            .calendar-cell.occupied { background: #ffcdd2; color: #b71c1c; font-weight: bold; }
-        </style>
-    </main>
+        <div id="reservaCalendar" class="calendar-holder"></div>
+        <p id="calendarEmptyMessage" class="calendar-empty" {% if reservas_agendadas %}style="display:none;"{% endif %}>Aún no hay reservas registradas. ¡Aprovecha los primeros horarios!</p>
+    </div>
+</section>
 
-    <footer class="footer">
-        <p>&copy; {% now "Y" %} Vasquez Garaje. Todos los derechos reservados.</p>
-    </footer>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('reservaCalendar');
+        if (!calendarEl) {
+            return;
+        }
 
-</body>
-</html>
+        var reservasData;
+        try {
+            reservasData = JSON.parse('{{ reservas_eventos_json|default:"[]"|escapejs }}');
+        } catch (error) {
+            reservasData = [];
+        }
+
+        var mobileQuery = window.matchMedia('(max-width: 640px)');
+
+        function buildToolbar(isMobile) {
+            if (isMobile) {
+                return { left: 'prev,next', center: 'title', right: 'timeGridDay,timeGridWeek' };
+            }
+            return { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' };
+        }
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            height: 'auto',
+            initialView: mobileQuery.matches ? 'timeGridDay' : 'timeGridWeek',
+            locale: 'es',
+            firstDay: 1,
+            slotDuration: '00:30:00',
+            slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+            slotMinTime: '10:00:00',
+            slotMaxTime: '20:00:00',
+            nowIndicator: true,
+            allDaySlot: false,
+            expandRows: true,
+            scrollTime: '10:00:00',
+            businessHours: {
+                daysOfWeek: [1, 2, 3, 4, 5, 6],
+                startTime: '10:00',
+                endTime: '18:30'
+            },
+            headerToolbar: buildToolbar(mobileQuery.matches),
+            dayHeaderFormat: { weekday: 'short', day: 'numeric' },
+            buttonText: {
+                today: 'Hoy',
+                week: 'Semana',
+                day: 'Día'
+            },
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+            timeZone: 'local',
+            events: reservasData,
+            eventColor: 'transparent',
+            eventBorderColor: 'transparent',
+            eventContent: function (arg) {
+                var props = arg.event.extendedProps || {};
+                var esPropia = Boolean(props.esPropia);
+                var texto = esPropia ? 'Tu reserva' : 'Reservado';
+                return { html: '<span class="calendar-slot-label">' + texto + '</span>' };
+            },
+            eventDidMount: function (info) {
+                var props = info.event.extendedProps || {};
+                var esPropia = Boolean(props.esPropia);
+                var detalle = props.servicio ? props.servicio : info.event.title;
+                if (props.vehiculo) {
+                    detalle += ' · ' + props.vehiculo;
+                }
+                if (props.estado) {
+                    detalle += ' (' + props.estado + ')';
+                }
+                var baseColor = esPropia ? 'rgba(33, 42, 62, 0.85)' : 'rgba(33, 42, 62, 0.4)';
+                info.el.style.backgroundColor = baseColor;
+                info.el.style.borderColor = baseColor;
+                info.el.classList.toggle('calendar-event-own', esPropia);
+                info.el.classList.toggle('calendar-event-other', !esPropia);
+                var prefijo = esPropia ? 'Tu reserva: ' : 'Reservado: ';
+                info.el.setAttribute('title', prefijo + detalle);
+            }
+        });
+
+        calendar.render();
+
+        function handleBreakpoint(event) {
+            var isMobile = event.matches;
+            calendar.setOption('headerToolbar', buildToolbar(isMobile));
+            calendar.changeView(isMobile ? 'timeGridDay' : 'timeGridWeek');
+        }
+
+        if (mobileQuery.addEventListener) {
+            mobileQuery.addEventListener('change', handleBreakpoint);
+        } else if (mobileQuery.addListener) {
+            mobileQuery.addListener(handleBreakpoint);
+        }
+
+        var emptyMessage = document.getElementById('calendarEmptyMessage');
+        if (emptyMessage) {
+            emptyMessage.style.display = reservasData.length ? 'none' : 'block';
+        }
+    });
+</script>
+{% endblock %}

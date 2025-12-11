@@ -1,13 +1,20 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/main_styles.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
 {% extends 'home.html' %}
+{% load static %}
+
+{% block title %}Eliminar Insumo - VasquezGarage SPA{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="dashboard-layout">
+<div class="container" style="padding: 40px 20px;">
     <div class="main-content">
-        <h1>Eliminar Insumo</h1>
+        <h1 style="margin-bottom: 16px; color: var(--color-primario);">Eliminar Insumo</h1>
+            {% include 'admin/_admin_navbar.html' with active_tab='inventario' %}
         <p>¿Estás seguro de que deseas eliminar el insumo <strong>{{ insumo.nombre }}</strong>?</p>
-        <form method="POST">
+        <form method="POST" style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Eliminar</button>
             <a href="{% url 'admin_inventario' %}" class="btn btn-secundario">Cancelar</a>
