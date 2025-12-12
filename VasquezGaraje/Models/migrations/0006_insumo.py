@@ -6,24 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Models', '0005_alter_reserva_options_reserva_patente'),
+        ("Models", "0005_alter_reserva_options_reserva_patente"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Insumo',
+            name="Insumo",
             fields=[
-                ('insumo_id', models.AutoField(primary_key=True, serialize=False)),
-                ('nombre', models.CharField(max_length=100)),
-                ('descripcion', models.TextField(blank=True, null=True)),
-                ('cantidad', models.PositiveIntegerField(default=0)),
-                ('unidad_medida', models.CharField(default='unidad', max_length=20)),
-                ('precio_unitario', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('fecha_actualizacion', models.DateTimeField(auto_now=True)),
+                ("insumo_id", models.AutoField(primary_key=True, serialize=False)),
+                ("nombre", models.CharField(max_length=100)),
+                ("descripcion", models.TextField(blank=True, null=True)),
+                ("cantidad", models.PositiveIntegerField(default=0)),
+                ("unidad_medida", models.CharField(default="unidad", max_length=20)),
+                (
+                    "precio_unitario",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                ("fecha_actualizacion", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'db_table': 'INSUMO',
-                'managed': True,
+                "db_table": "INSUMO",
+                "managed": True,
             },
         ),
     ]

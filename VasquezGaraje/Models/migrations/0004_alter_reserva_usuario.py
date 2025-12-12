@@ -7,13 +7,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Models', '0003_auto_20251112_1744'),
+        ("Models", "0003_auto_20251112_1744"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reserva',
-            name='usuario',
-            field=models.ForeignKey(db_column='usuario_id', on_delete=django.db.models.deletion.DO_NOTHING, to='Models.cliente'),
+            model_name="reserva",
+            name="usuario",
+            field=models.ForeignKey(
+                db_column="usuario_id",
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                to="Models.cliente",
+            ),
         ),
     ]

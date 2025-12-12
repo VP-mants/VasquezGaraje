@@ -19,23 +19,23 @@ def align_insumo_schema(apps, schema_editor):
             cursor.execute(f"ALTER TABLE INSUMO RENAME COLUMN {old} TO {new}")
             columns = get_columns()
 
-    rename_column('nombre_insumo', 'nombre')
-    rename_column('descripcion_insumo', 'descripcion')
-    rename_column('stock_actual', 'cantidad')
+    rename_column("nombre_insumo", "nombre")
+    rename_column("descripcion_insumo", "descripcion")
+    rename_column("stock_actual", "cantidad")
 
     columns = get_columns()
 
-    if 'cantidad' not in columns:
+    if "cantidad" not in columns:
         cursor.execute("ALTER TABLE INSUMO ADD COLUMN cantidad INTEGER DEFAULT 0")
         columns = get_columns()
 
-    if 'precio_unitario' not in columns:
+    if "precio_unitario" not in columns:
         cursor.execute(
             "ALTER TABLE INSUMO ADD COLUMN precio_unitario DECIMAL(10,2) DEFAULT 0"
         )
         columns = get_columns()
 
-    if 'fecha_actualizacion' not in columns:
+    if "fecha_actualizacion" not in columns:
         cursor.execute(
             "ALTER TABLE INSUMO ADD COLUMN fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP"
         )
@@ -48,7 +48,7 @@ def noop_reverse(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Models', '0006_insumo'),
+        ("Models", "0006_insumo"),
     ]
 
     operations = [

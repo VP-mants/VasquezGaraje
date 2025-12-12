@@ -7,23 +7,22 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Cliente',
+            name="Cliente",
             fields=[
-                ('cliente_id', models.AutoField(primary_key=True, serialize=False)),
-                ('nombre_cliente', models.CharField(max_length=100)),
-                ('apellido_cliente', models.CharField(max_length=100)),
-                ('correo_cliente', models.EmailField(max_length=254, unique=True)),
-                ('telefono_cliente', models.CharField(max_length=20)),
-                ('contraseña_cliente', models.CharField(max_length=128)),
-                ('es_admin', models.BooleanField(default=False)),
+                ("cliente_id", models.AutoField(primary_key=True, serialize=False)),
+                ("nombre_cliente", models.CharField(max_length=100)),
+                ("apellido_cliente", models.CharField(max_length=100)),
+                ("correo_cliente", models.EmailField(max_length=254, unique=True)),
+                ("telefono_cliente", models.CharField(max_length=20)),
+                ("contraseña_cliente", models.CharField(max_length=128)),
+                ("es_admin", models.BooleanField(default=False)),
             ],
             options={
-                'db_table': 'CLIENTE',
+                "db_table": "CLIENTE",
             },
         ),
     ]
