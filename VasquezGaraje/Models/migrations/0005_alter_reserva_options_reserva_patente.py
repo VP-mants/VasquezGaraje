@@ -6,17 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Models', '0004_alter_reserva_usuario'),
+        ("Models", "0004_alter_reserva_usuario"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='reserva',
-            options={'managed': True},
+            name="reserva",
+            options={"managed": True},
         ),
         migrations.AddField(
-            model_name='reserva',
-            name='patente',
-            field=models.CharField(blank=True, help_text='Ej: AB123CD', max_length=10, null=True),
+            model_name="reserva",
+            name="patente",
+            field=models.CharField(
+                blank=True, help_text="Ej: AB123CD", max_length=10, null=True
+            ),
         ),
     ]

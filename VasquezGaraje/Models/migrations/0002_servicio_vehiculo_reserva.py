@@ -7,52 +7,92 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Models', '0001_initial'),
+        ("Models", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Servicio',
+            name="Servicio",
             fields=[
-                ('servicio_id', models.AutoField(primary_key=True, serialize=False)),
-                ('nombre_servicio', models.CharField(max_length=100)),
-                ('descripcion_servicio', models.TextField()),
-                ('duracion_servicio', models.IntegerField()),
+                ("servicio_id", models.AutoField(primary_key=True, serialize=False)),
+                ("nombre_servicio", models.CharField(max_length=100)),
+                ("descripcion_servicio", models.TextField()),
+                ("duracion_servicio", models.IntegerField()),
             ],
             options={
-                'db_table': 'SERVICIO',
-                'managed': False,
+                "db_table": "SERVICIO",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='Vehiculo',
+            name="Vehiculo",
             fields=[
-                ('vehiculo_id', models.AutoField(primary_key=True, serialize=False)),
-                ('patente', models.CharField(max_length=20, unique=True)),
-                ('marca', models.CharField(blank=True, max_length=50, null=True)),
-                ('modelo', models.CharField(blank=True, max_length=50, null=True)),
-                ('año', models.IntegerField(blank=True, null=True)),
+                ("vehiculo_id", models.AutoField(primary_key=True, serialize=False)),
+                ("patente", models.CharField(max_length=20, unique=True)),
+                ("marca", models.CharField(blank=True, max_length=50, null=True)),
+                ("modelo", models.CharField(blank=True, max_length=50, null=True)),
+                ("año", models.IntegerField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'VEHICULO',
-                'managed': False,
+                "db_table": "VEHICULO",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='Reserva',
+            name="Reserva",
             fields=[
-                ('reserva_id', models.AutoField(primary_key=True, serialize=False)),
-                ('fecha_hora_inicio', models.DateTimeField()),
-                ('direccion_reserva', models.CharField(db_column='dirección_reserva', max_length=255)),
-                ('comuna_reserva', models.CharField(blank=True, max_length=100, null=True)),
-                ('notas_cliente', models.TextField(blank=True, null=True)),
-                ('estado_reserva', models.CharField(choices=[('Pendiente', 'Pendiente'), ('Confirmado', 'Confirmado'), ('En Proceso', 'En Proceso'), ('Completado', 'Completado'), ('Cancelado', 'Cancelado')], default='Pendiente', max_length=50)),
-                ('servicio', models.ForeignKey(db_column='servicio_id', on_delete=django.db.models.deletion.DO_NOTHING, to='Models.servicio')),
-                ('usuario', models.ForeignKey(db_column='usuario_id', on_delete=django.db.models.deletion.DO_NOTHING, to='Models.cliente')),
-                ('vehiculo', models.ForeignKey(db_column='vehiculo_id', on_delete=django.db.models.deletion.DO_NOTHING, to='Models.vehiculo')),
+                ("reserva_id", models.AutoField(primary_key=True, serialize=False)),
+                ("fecha_hora_inicio", models.DateTimeField()),
+                (
+                    "direccion_reserva",
+                    models.CharField(db_column="dirección_reserva", max_length=255),
+                ),
+                (
+                    "comuna_reserva",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                ("notas_cliente", models.TextField(blank=True, null=True)),
+                (
+                    "estado_reserva",
+                    models.CharField(
+                        choices=[
+                            ("Pendiente", "Pendiente"),
+                            ("Confirmado", "Confirmado"),
+                            ("En Proceso", "En Proceso"),
+                            ("Completado", "Completado"),
+                            ("Cancelado", "Cancelado"),
+                        ],
+                        default="Pendiente",
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "servicio",
+                    models.ForeignKey(
+                        db_column="servicio_id",
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="Models.servicio",
+                    ),
+                ),
+                (
+                    "usuario",
+                    models.ForeignKey(
+                        db_column="usuario_id",
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="Models.cliente",
+                    ),
+                ),
+                (
+                    "vehiculo",
+                    models.ForeignKey(
+                        db_column="vehiculo_id",
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="Models.vehiculo",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'RESERVA',
+                "db_table": "RESERVA",
             },
         ),
     ]

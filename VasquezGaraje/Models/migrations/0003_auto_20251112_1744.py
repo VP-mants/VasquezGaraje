@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Models', '0002_servicio_vehiculo_reserva'),
+        ("Models", "0002_servicio_vehiculo_reserva"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='reserva',
-            name='usuario',
+            model_name="reserva",
+            name="usuario",
             field=models.ForeignKey(
-                to='Models.Cliente',
+                to="Models.Cliente",
                 on_delete=models.DO_NOTHING,
-                db_column='usuario_id',
+                db_column="usuario_id",
                 null=True,
             ),
         ),
